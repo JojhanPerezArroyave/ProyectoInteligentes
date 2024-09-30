@@ -17,6 +17,9 @@ def agent_portrayal(agent):
         portrayal["Color"] = "brown"
         portrayal["w"] = 1
         portrayal["h"] = 1
+        if agent.has_exit:
+            portrayal["text"] = "SALIDA"
+            portrayal["text_color"] = "white"
     
     elif isinstance(agent, Metal):
         portrayal["Color"] = "gray"

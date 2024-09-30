@@ -29,6 +29,10 @@ class BombermanModel(Model):
                         rock = Rock((x, y), self)
                         self.grid.place_agent(rock, (x, y))
                         self.schedule.add(rock)
+                    elif elem == "R_s":
+                        rock = Rock((x, y), self, has_exit=True)
+                        self.grid.place_agent(rock, (x, y))
+                        self.schedule.add(rock)
                     elif elem == "M":
                         metal = Metal((x, y), self)
                         self.grid.place_agent(metal, (x, y))
