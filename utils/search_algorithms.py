@@ -20,6 +20,29 @@ def breadth_first_search(start, goal, model):
 
     return None  # No se encontró la meta
 
+def depth_first_search(start, goal, model):
+    stack = [start]
+    visited = {start}
+    came_from = {start: None}
+
+    while stack:
+        current = stack.pop()
+        
+        # Si estamos en una casilla adyacente a la roca con la salida, terminamos la búsqueda
+        if is_adjacent(current, goal):
+            return reconstruct_path(came_from, current)
+        
+        # Obtener vecinos y verificar si están vacíos
+        neighbors = model.grid.get_neighborhood(current, moore=False, include_center=False)
+        for neighbor in neighbors:
+            if neighbor not in visited and model.grid.is_cell_empty(neighbor):
+                visited.add(neighbor)
+                stack.append(neighbor)
+                came_from[neighbor] = current
+
+    return None  # No se encontró la meta
+
+
 def is_adjacent(pos1, pos2):
     """Verifica si dos posiciones están una al lado de la otra."""
     x1, y1 = pos1
