@@ -11,7 +11,6 @@ class BombermanModel(Model):
         super().__init__()
         self.grid = MultiGrid(width, height, torus=False)
         self.schedule = RandomActivation(self)
-        
         # Cargar el mapa desde un archivo de texto
         self.load_map(map_file)
 
