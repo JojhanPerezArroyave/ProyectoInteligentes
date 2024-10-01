@@ -11,7 +11,6 @@ class BombermanModel(Model):
         super().__init__()
         self.grid = MultiGrid(width, height, torus=False)
         self.schedule = RandomActivation(self)
-        
         # Cargar el mapa desde un archivo de texto
         self.load_map(map_file)
 
@@ -27,6 +26,10 @@ class BombermanModel(Model):
                         continue
                     elif elem == "R":
                         rock = Rock((x, y), self)
+                        self.grid.place_agent(rock, (x, y))
+                        self.schedule.add(rock)
+                    elif elem == "R_s":
+                        rock = Rock((x, y), self, has_exit=True)
                         self.grid.place_agent(rock, (x, y))
                         self.schedule.add(rock)
                     elif elem == "M":
