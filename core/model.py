@@ -11,6 +11,8 @@ class BombermanModel(Model):
         super().__init__()
         self.grid = MultiGrid(width, height, torus=False)
         self.schedule = RandomActivation(self)
+        # Diccionario para registrar los números en el mapa
+        self.visited_numbers = {}
         # Cargar el mapa desde un archivo de texto
         self.load_map(map_file)
 
@@ -41,6 +43,21 @@ class BombermanModel(Model):
         self.grid.place_agent(bomberman, (0, len(lines) - 1))
         self.schedule.add(bomberman)
 
+    def place_agent_number(self, pos, number):
+        # Registrar el número de la casilla en self.visited_numbers
+        self.visited_numbers[pos] = number
+        # Asegurar que el número se queda en la celda aunque Bomberman no esté
+        self.grid.place_agent(NumberMarker(pos, self, number), pos)
+
     def step(self):
         # Avanzar en el tiempo
         self.schedule.step()
+
+class NumberMarker(Agent):
+    def __init__(self, pos, model, number):
+        super().__init__(pos, model)
+        self.number = number
+
+    def step(self):
+        pass  # Los números no hacen nada, son solo decorativos
+        

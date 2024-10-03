@@ -15,8 +15,8 @@ class Bomberman(Agent):
         if exit_position is not None:
             # Si no hay un camino calculado o ya llegamos al final, calculamos un nuevo camino
             if not self.path:
-                self.path = breadth_first_search(self.pos, exit_position, self.model)
-                #self.path = depth_first_search(self.pos, exit_position, self.model)
+                #self.path = breadth_first_search(self.pos, exit_position, self.model)
+                self.path = depth_first_search(self.pos, exit_position, self.model)
                 print(f"Camino encontrado: {self.path}")
             
             # Mover a Bomberman a la siguiente posición del camino si existe un camino

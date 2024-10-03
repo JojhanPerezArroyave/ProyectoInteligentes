@@ -1,12 +1,25 @@
 from mesa.visualization.modules import CanvasGrid
 from mesa.visualization.ModularVisualization import ModularServer
-from core.model import BombermanModel
+from core.model import BombermanModel, NumberMarker
 from agents.bomberman import Bomberman
 from agents.rock import Rock
 from agents.metal import Metal
 
 def agent_portrayal(agent):
     portrayal = {"Shape": "rect", "Filled": "true", "Layer": 0}
+
+    if isinstance(agent, NumberMarker):
+        portrayal["Shape"] = "rect"
+        portrayal["Color"] = "white"
+        portrayal["w"] = 1
+        portrayal["h"] = 1
+        portrayal["text"] = str(agent.number)
+        portrayal["text_color"] = "black"
+        return portrayal  # No necesitamos seguir evaluando otros agentes aquí
+
+    if hasattr(agent, 'model') and agent.pos in agent.model.visited_numbers:
+        portrayal["text"] = str(agent.model.visited_numbers[agent.pos])
+        portrayal["text_color"] = "red"
     
     if isinstance(agent, Bomberman):
         portrayal["Shape"] = "circle"
