@@ -4,15 +4,18 @@ from mesa.space import MultiGrid
 from agents.bomberman import Bomberman
 from agents.rock import Rock
 from agents.metal import Metal
+from utils.search_algorithms import breadth_first_search, depth_first_search, uniform_cost_search
 import random
 
 class BombermanModel(Model):
-    def __init__(self, width, height, map_file):
+    def __init__(self, width, height, map_file, algorithm):
         super().__init__()
         self.grid = MultiGrid(width, height, torus=False)
         self.schedule = RandomActivation(self)
         # Diccionario para registrar los números en el mapa
         self.visited_numbers = {}
+
+        self.algorithm = algorithm  # Guardar el algoritmo seleccionado
         # Cargar el mapa desde un archivo de texto
         self.load_map(map_file)
 
@@ -52,6 +55,16 @@ class BombermanModel(Model):
     def step(self):
         # Avanzar en el tiempo
         self.schedule.step()
+
+    def run_search_algorithm(self, start, goal):
+        """Ejecuta el algoritmo de búsqueda basado en la selección del usuario."""
+        if self.algorithm == "BFS":
+            return breadth_first_search(start, goal, self)
+        elif self.algorithm == "DFS":
+            return depth_first_search(start, goal, self)
+        elif self.algorithm == "UCS":
+            return uniform_cost_search(start, goal, self)
+    
 
 class NumberMarker(Agent):
     def __init__(self, pos, model, number):
