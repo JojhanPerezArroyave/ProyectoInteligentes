@@ -42,12 +42,16 @@ def agent_portrayal(agent):
     
     return portrayal
 
-grid = CanvasGrid(agent_portrayal, 7, 7, 500, 500)
+map_file = "data/map.txt"
+model = BombermanModel(map_file, "BFS")
 
+grid = CanvasGrid(agent_portrayal, model.grid_width, model.grid_height, 500, 500)
+
+# Selección de algoritmo
 algorithm_choice = Choice("Algoritmo de búsqueda", value="BFS", choices=["BFS", "DFS", "UCS"])
 
 server = ModularServer(
-    BombermanModel, [grid], "Bomberman Model", {"width": 7, "height": 7, "map_file": "data/map.txt", "algorithm": algorithm_choice}
+    BombermanModel, [grid], "Bomberman Model", {"map_file": map_file, "algorithm": algorithm_choice}
 )
 server.port = 8521
 server.launch()
