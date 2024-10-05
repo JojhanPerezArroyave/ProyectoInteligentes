@@ -1,6 +1,5 @@
 from mesa import Agent
 from agents.rock import Rock
-from utils.search_algorithms import breadth_first_search, depth_first_search, uniform_cost_search
 
 class Bomberman(Agent):
     def __init__(self, pos, model):
@@ -11,13 +10,12 @@ class Bomberman(Agent):
     def move(self):
         # Encontrar la posición de la salida
         exit_position = self.find_exit_position()
+        
         # Verificar si se ha encontrado la salida
         if exit_position is not None:
             # Si no hay un camino calculado o ya llegamos al final, calculamos un nuevo camino
             if not self.path:
-                #self.path = breadth_first_search(self.pos, exit_position, self.model)
-                #self.path = depth_first_search(self.pos, exit_position, self.model)
-                self.path = uniform_cost_search(self.pos, exit_position, self.model)
+                self.path = self.model.run_search_algorithm(self.pos, exit_position)
                 print(f"Camino encontrado: {self.path}")
             
             # Mover a Bomberman a la siguiente posición del camino si existe un camino

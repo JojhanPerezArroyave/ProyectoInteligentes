@@ -1,5 +1,6 @@
 from mesa.visualization.modules import CanvasGrid
 from mesa.visualization.ModularVisualization import ModularServer
+from mesa.visualization.UserParam import Choice
 from core.model import BombermanModel, NumberMarker
 from agents.bomberman import Bomberman
 from agents.rock import Rock
@@ -42,6 +43,11 @@ def agent_portrayal(agent):
     return portrayal
 
 grid = CanvasGrid(agent_portrayal, 7, 7, 500, 500)
-server = ModularServer(BombermanModel, [grid], "Bomberman Model", {"width": 7, "height": 7, "map_file": "data/map.txt"})
+
+algorithm_choice = Choice("Algoritmo de búsqueda", value="BFS", choices=["BFS", "DFS", "UCS"])
+
+server = ModularServer(
+    BombermanModel, [grid], "Bomberman Model", {"width": 7, "height": 7, "map_file": "data/map.txt", "algorithm": algorithm_choice}
+)
 server.port = 8521
 server.launch()
