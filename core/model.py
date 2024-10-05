@@ -31,11 +31,16 @@ class BombermanModel(Model):
     def load_map(self, map_file):
         with open(map_file, "r") as f:
             lines = f.readlines()
+            bomberman_position = None  # Para guardar la posición de Bomberman
+
             for y, line in enumerate(reversed(lines)):  # Invertir el orden de las filas
                 elements = line.strip().split(',')
                 for x, elem in enumerate(elements):
-                    if elem == "C":
-                        continue  # Casilla de camino, no necesita agente
+                    if elem == "C_b":  # Encontrar la posición inicial de Bomberman
+                        bomberman_position = (x, y)
+                    elif elem == "C":
+                        # Casilla de camino, no necesita agente
+                        continue
                     elif elem == "R":
                         rock = Rock((x, y), self)
                         self.grid.place_agent(rock, (x, y))
@@ -48,10 +53,14 @@ class BombermanModel(Model):
                         metal = Metal((x, y), self)
                         self.grid.place_agent(metal, (x, y))
 
-        # Posicionar a Bomberman en la esquina superior izquierda del mapa cargado
-        bomberman = Bomberman((0, len(lines) - 1), self)
-        self.grid.place_agent(bomberman, (0, len(lines) - 1))
-        self.schedule.add(bomberman)
+            # Si se encontró la posición de Bomberman en el mapa, colocarlo allí
+            if bomberman_position:
+                bomberman = Bomberman(bomberman_position, self)
+                self.grid.place_agent(bomberman, bomberman_position)
+                self.schedule.add(bomberman)
+            else:
+                raise ValueError("No se encontró la posición inicial de Bomberman (C_b) en el mapa.")
+
 
     def place_agent_number(self, pos, number):
         # Registrar el número de la casilla en self.visited_numbers
