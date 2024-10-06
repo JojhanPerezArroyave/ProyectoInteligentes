@@ -55,7 +55,7 @@ def depth_first_search(start, goal, model):
         
         # Obtener vecinos en el orden ortogonal: arriba, derecha, abajo, izquierda
         neighbors = get_neighbors_in_orthogonal_order(current, model)
-        for neighbor in neighbors:
+        for neighbor in reversed(neighbors):
             if neighbor not in visited and model.grid.is_cell_empty(neighbor):
                 visited.add(neighbor)
                 stack.append(neighbor)
