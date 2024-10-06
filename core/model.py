@@ -1,7 +1,8 @@
-from mesa import Agent, Model
+from mesa import Model
 from mesa.time import RandomActivation
 from mesa.space import MultiGrid
 from agents.bomberman import Bomberman
+from agents.numberMarker import NumberMarker
 from agents.rock import Rock
 from agents.metal import Metal
 from utils.search_algorithms import breadth_first_search, depth_first_search, uniform_cost_search
@@ -82,11 +83,4 @@ class BombermanModel(Model):
             return uniform_cost_search(start, goal, self)
     
 
-class NumberMarker(Agent):
-    def __init__(self, pos, model, number):
-        super().__init__(pos, model)
-        self.number = number
-
-    def step(self):
-        pass  # Los números no hacen nada, son solo decorativos
         
