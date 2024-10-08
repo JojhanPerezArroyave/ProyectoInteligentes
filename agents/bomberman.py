@@ -7,6 +7,11 @@ class Bomberman(Agent):
         self.path = [] 
     
     def move(self):
+        """
+            Calcula y sigue el camino hacia la salida en cada paso del modelo.
+            Si no hay un camino precalculado, se utiliza el algoritmo de búsqueda seleccionado
+            para encontrarlo.
+        """
         exit_position = self.find_exit_position()
         
         if exit_position is not None:
@@ -29,6 +34,12 @@ class Bomberman(Agent):
             print("No se ha encontrado la salida.")
     
     def find_exit_position(self):
+        """
+            Busca la posición de la roca que contiene la salida (R_s).
+
+            Returns:
+                tuple: La posición de la roca con la salida, si existe. Si no, devuelve None.
+        """
         for agent in self.model.schedule.agents:
             if isinstance(agent, Rock) and agent.has_exit:
                 return agent.pos

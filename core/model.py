@@ -61,7 +61,13 @@ class BombermanModel(Model):
 
 
     def place_agent_number(self, pos, number):
-        # Registrar el número de la casilla en self.visited_numbers
+        """
+            Marca una casilla en el mapa con un número que representa el orden en que fue visitada.
+
+            Args:
+                pos (tuple): La posición en la grilla.
+                number (int): El número que representa el orden de la visita.
+        """
         self.visited_numbers[pos] = number
         self.grid.place_agent(NumberMarker(pos, self, number), pos)
 
@@ -69,6 +75,16 @@ class BombermanModel(Model):
         self.schedule.step()
 
     def run_search_algorithm(self, start, goal):
+        """
+            Ejecuta el algoritmo de búsqueda seleccionado por el usuario.
+
+            Args:
+                start (tuple): La posición inicial de Bomberman.
+                goal (tuple): La posición objetivo (normalmente la salida bajo la roca).
+
+            Returns:
+                list: El camino encontrado hacia la salida.
+        """
         if self.algorithm == "BFS":
             return breadth_first_search(start, goal, self)
         elif self.algorithm == "DFS":
