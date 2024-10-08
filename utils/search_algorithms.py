@@ -5,17 +5,12 @@ def breadth_first_search(start, goal, model):
     queue = deque([start])
     visited = {start}
     came_from = {start: None}
-    
-    # Contador para las casillas analizadas
     step_counter = 0
 
     while queue:
         current = queue.popleft()
-
-        # Mostrar en el mapa el orden de la casilla analizada
         model.place_agent_number(current, step_counter)
         print(f"Casilla {current} marcada con el número {step_counter}")  # Imprimir en consola
-        
         step_counter += 1
 
         # Si estamos en una casilla adyacente a la roca con la salida, terminamos la búsqueda
@@ -24,44 +19,43 @@ def breadth_first_search(start, goal, model):
         
         # Obtener vecinos en el orden ortogonal
         neighbors = get_neighbors_in_orthogonal_order(current, model)
+
         for neighbor in neighbors:
             if neighbor not in visited and model.grid.is_cell_empty(neighbor):
                 visited.add(neighbor)
                 queue.append(neighbor)
                 came_from[neighbor] = current
 
-    return None  # No se encontró la meta
+    return None 
 
 def depth_first_search(start, goal, model):
     stack = [start]
     visited = {start}
     came_from = {start: None}
-    
-    # Contador para las casillas analizadas
     step_counter = 0
 
     while stack:
         current = stack.pop()
-
-        # Mostrar en el mapa el orden de la casilla analizada
         model.place_agent_number(current, step_counter)
-        print(f"Casilla {current} marcada con el número {step_counter}")  # Imprimir en consola
-        
+        print(f"Casilla {current} marcada con el número {step_counter}")  
         step_counter += 1
 
         # Si estamos en una casilla adyacente a la roca con la salida, terminamos la búsqueda
         if is_adjacent(current, goal):
             return reconstruct_path(came_from, current)
         
-        # Obtener vecinos en el orden ortogonal: arriba, derecha, abajo, izquierda
+        # Obtener vecinos en el orden ortogonal
         neighbors = get_neighbors_in_orthogonal_order(current, model)
+
+        # Iterar sobre los vecinos en orden inverso para que el orden sea arriba, derecha, abajo, izquierda, 
+        # porque en una pila se toma la última casilla que se agregó
         for neighbor in reversed(neighbors):
             if neighbor not in visited and model.grid.is_cell_empty(neighbor):
                 visited.add(neighbor)
                 stack.append(neighbor)
                 came_from[neighbor] = current
 
-    return None  # No se encontró la meta
+    return None 
 
 def uniform_cost_search(start, goal, model):
     # Usamos una cola de prioridad (heap) para manejar los costos
@@ -69,8 +63,6 @@ def uniform_cost_search(start, goal, model):
     heappush(queue, (0, start))  # (costo acumulado, nodo)
     visited = set()
     came_from = {start: None}
-    
-    # Contador para las casillas analizadas
     step_counter = 1
 
     while queue:
@@ -81,9 +73,7 @@ def uniform_cost_search(start, goal, model):
         if is_adjacent(current_node, goal):
             return reconstruct_path(came_from, current_node)
         
-        # Marcar el nodo como visitado
         visited.add(current_node)
-        # Mostrar en el mapa el orden de la casilla analizada
         model.place_agent_number(current_node, step_counter)
         print(f"Casilla {current_node} marcada con el número {step_counter}")  # Imprimir en consola
         step_counter += 1
@@ -96,7 +86,7 @@ def uniform_cost_search(start, goal, model):
                 heappush(queue, (new_cost, neighbor))
                 came_from[neighbor] = current_node
 
-    return None  # Si no se encuentra un camino
+    return None 
 
 
 def is_adjacent(pos1, pos2):
