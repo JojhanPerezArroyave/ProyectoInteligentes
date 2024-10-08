@@ -16,7 +16,7 @@ def agent_portrayal(agent):
         portrayal["h"] = 1
         portrayal["text"] = str(agent.number)
         portrayal["text_color"] = "black"
-        return portrayal  # No necesitamos seguir evaluando otros agentes aquí
+        return portrayal 
 
     if hasattr(agent, 'model') and agent.pos in agent.model.visited_numbers:
         portrayal["text"] = str(agent.model.visited_numbers[agent.pos])
@@ -44,14 +44,8 @@ def agent_portrayal(agent):
 
 map_file = "data/map.txt"
 model = BombermanModel(map_file, "BFS")
-
 grid = CanvasGrid(agent_portrayal, model.grid_width, model.grid_height, 500, 500)
-
-# Selección de algoritmo
 algorithm_choice = Choice("Algoritmo de búsqueda", value="BFS", choices=["BFS", "DFS", "UCS"])
-
-server = ModularServer(
-    BombermanModel, [grid], "Bomberman Model", {"map_file": map_file, "algorithm": algorithm_choice}
-)
+server = ModularServer(BombermanModel, [grid], "Bomberman Model", {"map_file": map_file, "algorithm": algorithm_choice})
 server.port = 8521
 server.launch()

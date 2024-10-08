@@ -7,7 +7,6 @@ class Bomberman(Agent):
         self.path = [] 
     
     def move(self):
-        # Encontrar la posición de la salida
         exit_position = self.find_exit_position()
         
         if exit_position is not None:
