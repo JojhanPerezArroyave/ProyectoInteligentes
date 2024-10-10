@@ -1,5 +1,7 @@
 from collections import deque
 from heapq import heappush, heappop
+from itertools import count
+
 
 def breadth_first_search(start, goal, model):
     queue = deque([start])
@@ -58,35 +60,56 @@ def depth_first_search(start, goal, model):
     return None 
 
 def uniform_cost_search(start, goal, model):
-    # Usamos una cola de prioridad (heap) para manejar los costos
+    """
+    Implementación del algoritmo de búsqueda por costo uniforme (UCS).
+    
+    Args:
+        start (tuple): Posición inicial de Bomberman.
+        goal (tuple): Posición objetivo (normalmente la salida bajo una roca).
+        model (BombermanModel): El modelo de Mesa que contiene el mapa y los agentes.
+    
+    Returns:
+        list: El camino encontrado desde el inicio hasta la meta.
+    """
+    # Inicializar la cola de prioridad con un contador para desempate
     queue = []
-    heappush(queue, (0, start))  # (costo acumulado, nodo)
+    counter = count()  # Generador de contadores
+    heappush(queue, (0, next(counter), start))  # (costo acumulado, contador, nodo)
+    
     visited = set()
     came_from = {start: None}
-    step_counter = 1
+    step_counter = 0
 
     while queue:
-        # Atender el nodo con el menor costo acumulado
-        current_cost, current_node = heappop(queue)
+        # Extraer el nodo con el menor costo acumulado y menor contador
+        current_cost, _, current_node = heappop(queue)
         
-        # Si llegamos a la meta, reconstruimos el camino
-        if is_adjacent(current_node, goal):
-            return reconstruct_path(came_from, current_node)
+        # Si el nodo actual ya ha sido visitado, saltarlo
+        if current_node in visited:
+            continue
         
+        # Marcar el nodo como visitado
         visited.add(current_node)
+        
+        # Marcar la casilla con el número de visita
         model.place_agent_number(current_node, step_counter)
         print(f"Casilla {current_node} marcada con el número {step_counter}")  # Imprimir en consola
         step_counter += 1
         
-        # Obtener vecinos en el orden ortogonal: arriba, derecha, abajo, izquierda
+        # Verificar si el nodo actual está adyacente a la meta
+        if is_adjacent(current_node, goal):
+            return reconstruct_path(came_from, current_node)
+        
+        # Obtener vecinos en el orden ortogonal: izquierda, arriba, derecha, abajo
         neighbors = get_neighbors_in_orthogonal_order(current_node, model)
+        
         for neighbor in neighbors:
             if neighbor not in visited and model.grid.is_cell_empty(neighbor):
                 new_cost = current_cost + 1  # Asumimos que el costo de moverse es 1
-                heappush(queue, (new_cost, neighbor))
+                heappush(queue, (new_cost, next(counter), neighbor))  # Insertar con contador
                 came_from[neighbor] = current_node
 
-    return None 
+    return None  # Si no se encuentra un camino
 
 
 def is_adjacent(pos1, pos2):
@@ -110,7 +133,7 @@ def get_neighbors_in_orthogonal_order(pos, model):
         (x - 1, y),  # Izquierda
         (x, y + 1),  # Arriba
         (x + 1, y),  # Derecha
-        (x, y - 1)  # Abajo
+        (x, y - 1)   # Abajo
     ]
     # Filtrar los vecinos válidos que están dentro de los límites del mapa y son caminos
     valid_neighbors = [n for n in neighbors if model.grid.out_of_bounds(n) == False]
