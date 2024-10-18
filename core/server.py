@@ -23,26 +23,19 @@ def agent_portrayal(agent):
         portrayal["text_color"] = "red"
     
     if isinstance(agent, Bomberman):
-        portrayal["Shape"] = "circle"
-        portrayal["Color"] = "blue"
-        portrayal["r"] = 0.8
-    
+        portrayal["Shape"] = "assets/Bomberman.png"
+
     elif isinstance(agent, Rock):
-        portrayal["Color"] = "brown"
-        portrayal["w"] = 1
-        portrayal["h"] = 1
+        portrayal["Shape"] = "assets/Rocas.jpg"
         if agent.has_exit:
-            portrayal["text"] = "SALIDA"
-            portrayal["text_color"] = "white"
+            portrayal["Shape"] = "assets/Roca-Salida.jpg"
     
     elif isinstance(agent, Metal):
-        portrayal["Color"] = "gray"
-        portrayal["w"] = 1
-        portrayal["h"] = 1
+        portrayal["Shape"] = "assets/Metal.jpg"
     
     return portrayal
 
-map_file = "data/mapa2.txt"
+map_file = "data/map.txt"
 model = BombermanModel(map_file, "BFS")
 grid = CanvasGrid(agent_portrayal, model.grid_width, model.grid_height, 500, 500)
 algorithm_choice = Choice("Algoritmo de búsqueda", value="BFS", choices=["BFS", "DFS", "UCS"])
