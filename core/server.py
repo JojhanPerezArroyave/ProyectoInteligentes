@@ -1,6 +1,7 @@
 from mesa.visualization.modules import CanvasGrid
 from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.UserParam import Choice
+from agents.balloon import Balloon
 from core.model import BombermanModel, NumberMarker
 from agents.bomberman import Bomberman
 from agents.rock import Rock
@@ -32,6 +33,9 @@ def agent_portrayal(agent):
     
     elif isinstance(agent, Metal):
         portrayal["Shape"] = "assets/Metal.jpg"
+
+    elif isinstance(agent, Balloon):
+        portrayal["Shape"] = "assets/Globo.png"
     
     return portrayal
 

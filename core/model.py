@@ -5,6 +5,7 @@ from agents.bomberman import Bomberman
 from agents.numberMarker import NumberMarker
 from agents.rock import Rock
 from agents.metal import Metal
+from agents.balloon import Balloon
 from utils.search_algorithms import breadth_first_search, depth_first_search, uniform_cost_search
 import random
 class BombermanModel(Model):
@@ -16,6 +17,8 @@ class BombermanModel(Model):
         self.visited_numbers = {}
         self.algorithm = algorithm  
         self.load_map(map_file)
+
+        self.add_balloons(3)
 
     def get_map_dimensions(self, map_file):
         with open(map_file, "r") as f:
@@ -91,6 +94,17 @@ class BombermanModel(Model):
             return depth_first_search(start, goal, self)
         elif self.algorithm == "UCS":
             return uniform_cost_search(start, goal, self)
-    
+        
+    def add_balloons(self, count):
+          for _ in range(count):
+            # Buscar una posición válida aleatoria (C)
+            while True:
+                x = random.randrange(self.grid_width)
+                y = random.randrange(self.grid_height)
+                if self.grid.is_cell_empty((x, y)):  # Verificar si es un camino libre
+                    balloon = Balloon((x, y), self)
+                    self.grid.place_agent(balloon, (x, y))
+                    self.schedule.add(balloon)
+                    break
 
         
