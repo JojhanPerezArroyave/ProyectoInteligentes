@@ -1,5 +1,6 @@
 from mesa import Agent
 import random
+from agents.bomberman import Bomberman
 from agents.numberMarker import NumberMarker
 
 class Balloon(Agent):
@@ -13,11 +14,25 @@ class Balloon(Agent):
 
         if valid_steps:
             new_position = random.choice(valid_steps)
+            self.model.update_previous_position(self, self.pos)
             self.model.grid.move_agent(self, new_position)
+            self.check_collision(new_position)
 
     def is_valid_estep(self, pos):
         cell_contents = self.model.grid.get_cell_list_contents(pos)
-        return all(isinstance(obj, NumberMarker) or self.model.grid.is_cell_empty(pos) for obj in cell_contents)
+        return all(isinstance(obj, NumberMarker) or self.model.grid.is_cell_empty(pos) or isinstance(obj, Bomberman) for obj in cell_contents)
+    
+    
+    def check_collision(self, new_position):
+        bomberman = next(agent for agent in self.model.schedule.agents if isinstance(agent, Bomberman))
+        if new_position == bomberman.pos:
+            print("¡Colisión detectada! Reiniciando la partida...")
+            self.model.reset_game()  
+        
+        if (self.model.previous_positions.get(bomberman) == new_position and
+              self.model.previous_positions.get(self) == bomberman.pos):
+            print("¡Colisión por intercambio de posiciones! Reiniciando la partida...")
+            self.model.reset_game()
 
     def step(self):
         self.move()

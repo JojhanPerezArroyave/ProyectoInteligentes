@@ -11,10 +11,12 @@ import random
 class BombermanModel(Model):
     def __init__(self,  map_file, algorithm):
         super().__init__()
+        self.map_file = map_file
         self.grid_width, self.grid_height = self.get_map_dimensions(map_file)
         self.grid = MultiGrid(self.grid_width, self.grid_height, torus=False)
         self.schedule = RandomActivation(self)
         self.visited_numbers = {}
+        self.previous_positions = {}
         self.algorithm = algorithm  
         self.load_map(map_file)
 
@@ -107,4 +109,9 @@ class BombermanModel(Model):
                     self.schedule.add(balloon)
                     break
 
-        
+    def update_previous_position(self, agent, new_position):
+        self.previous_positions[agent] = new_position
+
+    def reset_game(self):
+        print("Reiniciando el juego...")
+        self.__init__(self.map_file, self.algorithm) 
