@@ -25,7 +25,9 @@ class Balloon(Agent):
     
     def check_collision(self, new_position):
         bomberman = next(agent for agent in self.model.schedule.agents if isinstance(agent, Bomberman))
-        if new_position == bomberman.pos:
+        ballon = next(agent for agent in self.model.schedule.agents if isinstance(agent, Balloon))
+
+        if new_position == bomberman.pos or bomberman.pos == ballon.pos:
             print("¡Colisión detectada! Reiniciando la partida...")
             self.model.reset_game()  
         

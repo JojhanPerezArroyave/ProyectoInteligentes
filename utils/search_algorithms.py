@@ -114,12 +114,71 @@ def uniform_cost_search(start, goal, model):
 
     return None  # Si no se encuentra un camino
 
+def beam_search(start, goal, model, beam_width=2):
+    """
+    Implementación del algoritmo Beam Search.
+    
+    Args:
+        start (tuple): Posición inicial de Bomberman.
+        goal (tuple): Posición objetivo (normalmente la salida bajo una roca).
+        model (BombermanModel): El modelo de Mesa que contiene el mapa y los agentes.
+        beam_width (int): El número máximo de nodos a expandir por nivel.
+    
+    Returns:
+        list: El camino encontrado desde el inicio hasta la meta.
+    """
+    queue = [(start, 0)]  # (nodo actual, valor heurístico)
+    came_from = {start: None}
+    step_counter = 0
+
+    while queue:
+        # Ordenar la lista según el valor heurístico (distancia a la meta)
+        queue.sort(key=lambda x: x[1])
+        
+        # Limitar la cantidad de nodos a expandir por el ancho del haz (beam_width)
+        queue = queue[:beam_width]
+        
+        # Lista temporal para almacenar los nuevos nodos a expandir
+        next_queue = []
+        
+        for current_node, _ in queue:
+            model.place_agent_number(current_node, step_counter)
+            print(f"Casilla {current_node} marcada con el número {step_counter}")  # Imprimir en consola
+            step_counter += 1
+
+            # Si estamos en una casilla adyacente a la roca con la salida, terminamos la búsqueda
+            if is_adjacent(current_node, goal):
+                return reconstruct_path(came_from, current_node)
+            
+            # Obtener vecinos en el orden ortogonal
+            neighbors = get_neighbors_in_orthogonal_order(current_node, model)
+
+            for neighbor in neighbors:
+                if neighbor not in came_from and is_valid_move(neighbor, model):
+                    # Calcular heurística: distancia de Manhattan a la meta
+                    heuristic_value = manhattan_distance(neighbor, goal)
+                    came_from[neighbor] = current_node
+                    next_queue.append((neighbor, heuristic_value))
+        
+        # Actualizar la cola con los nuevos nodos a expandir
+        queue = next_queue
+
+    return None  # Si no se encuentra un camino
+
 
 def is_adjacent(pos1, pos2):
     """Verifica si dos posiciones están una al lado de la otra."""
     x1, y1 = pos1
     x2, y2 = pos2
     return abs(x1 - x2) + abs(y1 - y2) == 1
+
+def manhattan_distance(pos1, pos2):
+    """
+    Calcula la distancia de Manhattan entre dos posiciones.
+    """
+    x1, y1 = pos1
+    x2, y2 = pos2
+    return abs(x1 - x2) + abs(y1 - y2)
 
 def reconstruct_path(came_from, current):
     path = []
