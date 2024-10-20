@@ -23,6 +23,7 @@ class Bomberman(Agent):
             # Si exite un camino, movemos al agente a la siguiente posición
             if self.path:
                 next_position = self.path.pop(0)
+                self.model.update_previous_position(self, self.pos)
                 self.model.grid.move_agent(self, next_position)
             
             print(f"Posición de la salida: {exit_position}")

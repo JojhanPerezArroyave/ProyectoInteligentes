@@ -2,6 +2,9 @@ from collections import deque
 from heapq import heappush, heappop
 from itertools import count
 
+from agents.metal import Metal
+from agents.rock import Rock
+
 
 def breadth_first_search(start, goal, model):
     queue = deque([start])
@@ -23,7 +26,7 @@ def breadth_first_search(start, goal, model):
         neighbors = get_neighbors_in_orthogonal_order(current, model)
 
         for neighbor in neighbors:
-            if neighbor not in visited and model.grid.is_cell_empty(neighbor):
+            if neighbor not in visited and is_valid_move(neighbor, model):
                 visited.add(neighbor)
                 queue.append(neighbor)
                 came_from[neighbor] = current
@@ -52,7 +55,7 @@ def depth_first_search(start, goal, model):
         # Iterar sobre los vecinos en orden inverso para que el orden sea arriba, derecha, abajo, izquierda, 
         # porque en una pila se toma la última casilla que se agregó
         for neighbor in reversed(neighbors):
-            if neighbor not in visited and model.grid.is_cell_empty(neighbor):
+            if neighbor not in visited and is_valid_move(neighbor, model):
                 visited.add(neighbor)
                 stack.append(neighbor)
                 came_from[neighbor] = current
@@ -104,7 +107,7 @@ def uniform_cost_search(start, goal, model):
         neighbors = get_neighbors_in_orthogonal_order(current_node, model)
         
         for neighbor in neighbors:
-            if neighbor not in visited and model.grid.is_cell_empty(neighbor):
+            if neighbor not in visited and is_valid_move(neighbor, model):
                 new_cost = current_cost + 1  # Asumimos que el costo de moverse es 1
                 heappush(queue, (new_cost, next(counter), neighbor))  # Insertar con contador
                 came_from[neighbor] = current_node
@@ -138,4 +141,12 @@ def get_neighbors_in_orthogonal_order(pos, model):
     # Filtrar los vecinos válidos que están dentro de los límites del mapa y son caminos
     valid_neighbors = [n for n in neighbors if model.grid.out_of_bounds(n) == False]
     return valid_neighbors
+
+def is_valid_move(pos, model):
+    cell_contents = model.grid.get_cell_list_contents(pos)
+    for obj in cell_contents:
+        if isinstance(obj, Rock) or isinstance(obj, Metal):
+            return False 
+    
+    return True  
 
