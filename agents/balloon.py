@@ -7,7 +7,7 @@ class Balloon(Agent):
         self.post = post
 
     def move(self):
-        possible_steps = self.model.grid.get_neighborhood(self.pos, moore=True, include_center=False)
+        possible_steps = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
         valid_steps = [pos for pos in possible_steps if self.model.grid.is_cell_empty(pos)]       
 
         if valid_steps:
