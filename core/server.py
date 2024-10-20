@@ -24,7 +24,7 @@ def agent_portrayal(agent):
         portrayal["text_color"] = "red"
     
     if isinstance(agent, Bomberman):
-        portrayal["Shape"] = "assets/Bomberman.png"
+        portrayal["Shape"] = "assets/Bomberman.jpg"
 
     elif isinstance(agent, Rock):
         portrayal["Shape"] = "assets/Rocas.jpg"
@@ -35,7 +35,7 @@ def agent_portrayal(agent):
         portrayal["Shape"] = "assets/Metal.jpg"
 
     elif isinstance(agent, Balloon):
-        portrayal["Shape"] = "assets/Globo.png"
+        portrayal["Shape"] = "assets/Globo.jpg"
     
     return portrayal
 
