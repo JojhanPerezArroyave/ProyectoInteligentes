@@ -20,8 +20,6 @@ class BombermanModel(Model):
         self.algorithm = algorithm  
         self.load_map(map_file)
 
-        self.add_balloons(3)
-
     def get_map_dimensions(self, map_file):
         with open(map_file, "r") as f:
             lines = f.readlines()
@@ -34,6 +32,7 @@ class BombermanModel(Model):
             lines = f.readlines()
             bomberman_position = None 
             valid_positions = []  
+            balloon_positions = []
 
             for y, line in enumerate(reversed(lines)): 
                 elements = line.strip().split(',')
@@ -42,6 +41,8 @@ class BombermanModel(Model):
                         bomberman_position = (x, y)
                     elif elem == "C":
                         valid_positions.append((x, y))
+                    elif elem == "C_g":
+                        balloon_positions.append((x, y))
                     elif elem == "R":
                         rock = Rock((x, y), self)
                         self.grid.place_agent(rock, (x, y))
@@ -53,6 +54,14 @@ class BombermanModel(Model):
                     elif elem == "M":
                         metal = Metal((x, y), self)
                         self.grid.place_agent(metal, (x, y))
+
+            for balloon_position in balloon_positions:
+                balloon = Balloon(balloon_position, self)
+                self.grid.place_agent(balloon, balloon_position)
+                self.schedule.add(balloon)
+
+            if not balloon_positions:
+                self.add_balloons(3)
 
             if not bomberman_position:
                 if valid_positions:
