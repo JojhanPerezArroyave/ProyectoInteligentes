@@ -11,8 +11,8 @@ class Bomberman(Agent):
 
     def move(self):
         """
-            Calcula y sigue el camino hacia la salida en cada paso del modelo.
-            Coloca una bomba si Bomberman encuentra un obstáculo en su camino.
+        Calcula y sigue el camino hacia la salida en cada paso del modelo.
+        Coloca una bomba si Bomberman encuentra un obstáculo en su camino.
         """
         exit_position = self.find_exit_position()
         
@@ -42,6 +42,10 @@ class Bomberman(Agent):
         else:
             self.follow_path()  # Moverse si no hay bloque en el camino
 
+    def increase_power(self):
+        """Incrementa el poder de destrucción cuando Bomberman encuentra un comodín."""
+        self.power += 1
+        print(f"Poder de destrucción incrementado a: {self.power}")
 
     def is_adjacent(self, position):
         """Comprueba si Bomberman está en una posición adyacente a la dada."""
@@ -63,12 +67,12 @@ class Bomberman(Agent):
         return False
 
     def place_bomb(self):
-        """Coloca una bomba en la posición actual."""
+        """Coloca una bomba en la posición actual con un temporizador y poder ajustado."""
         from agents.bomb import Bomb  # Importación dentro del método para evitar ciclos
         bomb = Bomb(self.model.next_id(), self.pos, self.model, self.power)
         self.model.grid.place_agent(bomb, self.pos)
         self.model.schedule.add(bomb)
-        print("¡Bomba colocada!")
+        print(f"Bomba colocada con tiempo de detonación: {self.power + 2}")
 
     def move_to_safe_position(self):
         """Busca una posición segura fuera del rango de la explosión y se mueve hacia ella."""
