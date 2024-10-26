@@ -216,6 +216,57 @@ def hill_climbing(start, goal, model, heuristic):
     # Reconstruir el camino hacia la salida
     return reconstruct_path(came_from, current_node)
 
+def a_star_search(start, goal, model, heuristic):
+    """
+    Implementación del algoritmo de búsqueda A* (A estrella).
+    
+    Args:
+        start (tuple): Posición inicial de Bomberman.
+        goal (tuple): Posición objetivo (normalmente la salida bajo una roca).
+        model (BombermanModel): El modelo de Mesa que contiene el mapa y los agentes.
+        heuristic (function): Función heurística para estimar la distancia a la meta.
+    
+    Returns:
+        list: El camino encontrado desde el inicio hasta la meta.
+    """
+    # Inicializar la cola de prioridad con un contador para desempate
+    queue = []
+    counter = count()  # Generador de contadores para desempatar
+    heappush(queue, (0, next(counter), start))  # (f(n), contador, nodo)
+    
+    came_from = {start: None}
+    g_cost = {start: 0}  # Diccionario para almacenar el costo g(n) de cada nodo
+    step_counter = 0
+
+    while queue:
+        # Extraer el nodo con el menor valor de f(n) y menor contador
+        _, _, current_node = heappop(queue)
+        
+        # Marcar la casilla actual con el número de visita
+        model.place_agent_number(current_node, step_counter)
+        print(f"Casilla {current_node} marcada con el número {step_counter}")  # Imprimir en consola
+        step_counter += 1
+
+        # Si el nodo actual está adyacente a la meta, se reconstruye el camino
+        if is_adjacent(current_node, goal):
+            return reconstruct_path(came_from, current_node)
+        
+        # Obtener vecinos en el orden ortogonal
+        neighbors = get_neighbors_in_orthogonal_order(current_node, model)
+
+        for neighbor in neighbors:
+            if is_valid_move(neighbor, model):
+                # Calcular g(n) para el vecino
+                tentative_g_cost = g_cost[current_node] + 1  # Se asume un costo de 1 por movimiento
+                
+                # Si encontramos un camino más corto a neighbor, o es la primera vez que lo encontramos
+                if neighbor not in g_cost or tentative_g_cost < g_cost[neighbor]:
+                    g_cost[neighbor] = tentative_g_cost
+                    f_cost = tentative_g_cost + heuristic(neighbor, goal)  # f(n) = g(n) + h(n)
+                    heappush(queue, (f_cost, next(counter), neighbor))
+                    came_from[neighbor] = current_node
+
+    return None  # Si no se encuentra un camino
 
 
 def is_adjacent(pos1, pos2):
