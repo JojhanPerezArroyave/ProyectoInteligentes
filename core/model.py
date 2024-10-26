@@ -6,7 +6,7 @@ from agents.numberMarker import NumberMarker
 from agents.rock import Rock
 from agents.metal import Metal
 from agents.balloon import Balloon
-from utils.search_algorithms import breadth_first_search, depth_first_search, uniform_cost_search, beam_search, manhattan_distance, euclidean_distance
+from utils.search_algorithms import breadth_first_search, depth_first_search, uniform_cost_search, beam_search, manhattan_distance, euclidean_distance, hill_climbing
 import random
 class BombermanModel(Model):
     def __init__(self,  map_file, algorithm, heuristic):
@@ -112,6 +112,8 @@ class BombermanModel(Model):
             return uniform_cost_search(start, goal, self)
         elif self.algorithm == "BS":
             return beam_search(start, goal, self, heuristic=heuristic_func)
+        elif self.algorithm == "HC":
+            return hill_climbing(start, goal, self, heuristic=heuristic_func)
         
     def get_heuristic(self, pos1, pos2):
         """

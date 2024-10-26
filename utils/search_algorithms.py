@@ -165,6 +165,58 @@ def beam_search(start, goal, model, heuristic ,beam_width=2):
 
     return None  # Si no se encuentra un camino
 
+def hill_climbing(start, goal, model, heuristic):
+    """
+    Implementación del algoritmo de búsqueda Hill Climbing.
+    
+    Args:
+        start (tuple): Posición inicial de Bomberman.
+        goal (tuple): Posición objetivo (normalmente la salida bajo una roca).
+        model (BombermanModel): El modelo de Mesa que contiene el mapa y los agentes.
+        heuristic (function): Función heurística para calcular la distancia a la meta.
+    
+    Returns:
+        list: El camino encontrado desde el inicio hasta la meta.
+    """
+    current_node = start
+    came_from = {start: None}
+    step_counter = 0
+
+    while current_node != goal:
+        model.place_agent_number(current_node, step_counter)
+        print(f"Casilla {current_node} marcada con el número {step_counter}")  # Imprimir en consola
+        step_counter += 1
+
+        # Obtener vecinos en el orden ortogonal
+        neighbors = get_neighbors_in_orthogonal_order(current_node, model)
+        # Filtrar vecinos válidos y calcular sus valores heurísticos
+        valid_neighbors = [
+            (neighbor, heuristic(neighbor, goal))
+            for neighbor in neighbors
+            if is_valid_move(neighbor, model) and neighbor not in came_from
+        ]
+
+        # Si no hay vecinos válidos, alcanzamos un óptimo local
+        if not valid_neighbors:
+            print("Óptimo local alcanzado, no hay mejoras posibles.")
+            return reconstruct_path(came_from, current_node)
+        
+        # Elegir el vecino con el menor valor heurístico
+        next_node, _ = min(valid_neighbors, key=lambda x: x[1])
+
+        # Si el vecino seleccionado no mejora, terminamos (óptimo local)
+        if heuristic(next_node, goal) >= heuristic(current_node, goal):
+            print("Óptimo local alcanzado, no se puede avanzar.")
+            return reconstruct_path(came_from, current_node)
+
+        # Actualizar el camino
+        came_from[next_node] = current_node
+        current_node = next_node
+
+    # Reconstruir el camino hacia la salida
+    return reconstruct_path(came_from, current_node)
+
+
 
 def is_adjacent(pos1, pos2):
     """Verifica si dos posiciones están una al lado de la otra."""
