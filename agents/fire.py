@@ -17,9 +17,9 @@ class Fire(Agent):
             # Eliminar cualquier bloque o globo en la posición del FireMarker
             cell_contents = self.model.grid.get_cell_list_contents(self.pos)
             for obj in cell_contents:
-                if isinstance(obj, Rock) and not obj.has_exit:  # Solo eliminar bloques sin salida
+                if isinstance(obj, Rock):  # Destruye todas las rocas, incluyendo la que tiene salida
                     self.model.grid.remove_agent(obj)
-                    print(f"Bloque destruido en {self.pos}, convirtiéndose en camino")
+                    print(f"Roca destruida en {self.pos}, convirtiéndose en camino")
                 elif isinstance(obj, Balloon):  # Eliminar globos afectados por la explosión
                     self.model.grid.remove_agent(obj)
                     print(f"Globo destruido en {self.pos} por la explosión")

@@ -16,18 +16,18 @@ class Bomberman(Agent):
         """
         exit_position = self.find_exit_position()
         
+        # Si la salida está libre, moverse directamente hacia allí
+        if self.exit_found and exit_position and not self.is_block_present(exit_position):
+            self.model.grid.move_agent(self, exit_position)
+            print("¡Bomberman ha alcanzado la salida!")
+            self.model.finish_game()
+            return
+
         # Colocar una bomba si Bomberman está adyacente a la roca con la salida
         if exit_position and self.is_adjacent(exit_position) and not self.exit_found:
             self.place_bomb()  # Coloca una bomba para destruir la roca de salida
             self.exit_found = True  # Marca que encontró la salida y colocó la bomba
             self.move_to_safe_position()
-            return
-
-        # Si la salida está libre y Bomberman ya colocó la bomba, moverse allí
-        if self.exit_found and not self.is_block_present(exit_position):
-            self.model.grid.move_agent(self, exit_position)
-            print("¡Bomberman ha alcanzado la salida!")
-            self.model.finish_game()
             return
 
         # Calcular un nuevo camino si es necesario
@@ -41,6 +41,7 @@ class Bomberman(Agent):
             self.move_to_safe_position()
         else:
             self.follow_path()  # Moverse si no hay bloque en el camino
+
 
     def is_adjacent(self, position):
         """Comprueba si Bomberman está en una posición adyacente a la dada."""

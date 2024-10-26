@@ -19,7 +19,7 @@ def breadth_first_search(start, goal, model):
         step_counter += 1
 
         # Si estamos en una casilla adyacente a la roca con la salida, terminamos la búsqueda
-        if is_adjacent(current, goal):
+        if current == goal:
             return reconstruct_path(came_from, current)
         
         # Obtener vecinos en el orden ortogonal
@@ -46,7 +46,7 @@ def depth_first_search(start, goal, model):
         step_counter += 1
 
         # Si estamos en una casilla adyacente a la roca con la salida, terminamos la búsqueda
-        if is_adjacent(current, goal):
+        if current == goal:
             return reconstruct_path(came_from, current)
         
         # Obtener vecinos en el orden ortogonal
@@ -100,7 +100,7 @@ def uniform_cost_search(start, goal, model):
         step_counter += 1
         
         # Verificar si el nodo actual está adyacente a la meta
-        if is_adjacent(current_node, goal):
+        if current_node == goal:
             return reconstruct_path(came_from, current_node)
         
         # Obtener vecinos en el orden ortogonal: izquierda, arriba, derecha, abajo
@@ -147,7 +147,7 @@ def beam_search(start, goal, model, heuristic ,beam_width=2):
             step_counter += 1
 
             # Si estamos en una casilla adyacente a la roca con la salida, terminamos la búsqueda
-            if is_adjacent(current_node, goal):
+            if current_node == goal:
                 return reconstruct_path(came_from, current_node)
             
             # Obtener vecinos en el orden ortogonal
@@ -248,7 +248,7 @@ def a_star_search(start, goal, model, heuristic):
         step_counter += 1
 
         # Si el nodo actual está adyacente a la meta, se reconstruye el camino
-        if is_adjacent(current_node, goal):
+        if current_node == goal:
             return reconstruct_path(came_from, current_node)
         
         # Obtener vecinos en el orden ortogonal
@@ -268,12 +268,6 @@ def a_star_search(start, goal, model, heuristic):
 
     return None  # Si no se encuentra un camino
 
-
-def is_adjacent(pos1, pos2):
-    """Verifica si dos posiciones están una al lado de la otra."""
-    x1, y1 = pos1
-    x2, y2 = pos2
-    return abs(x1 - x2) + abs(y1 - y2) == 1
 
 def manhattan_distance(pos1, pos2):
     """
