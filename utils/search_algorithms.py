@@ -114,7 +114,7 @@ def uniform_cost_search(start, goal, model):
 
     return None  # Si no se encuentra un camino
 
-def beam_search(start, goal, model, beam_width=2):
+def beam_search(start, goal, model, heuristic ,beam_width=2):
     """
     Implementación del algoritmo Beam Search.
     
@@ -156,7 +156,7 @@ def beam_search(start, goal, model, beam_width=2):
             for neighbor in neighbors:
                 if neighbor not in came_from and is_valid_move(neighbor, model):
                     # Calcular heurística: distancia de Manhattan a la meta
-                    heuristic_value = manhattan_distance(neighbor, goal)
+                    heuristic_value = heuristic(neighbor, goal)
                     came_from[neighbor] = current_node
                     next_queue.append((neighbor, heuristic_value))
         
@@ -179,6 +179,17 @@ def manhattan_distance(pos1, pos2):
     x1, y1 = pos1
     x2, y2 = pos2
     return abs(x1 - x2) + abs(y1 - y2)
+
+import math
+
+def euclidean_distance(pos1, pos2):
+    '''
+    Calcula la distancia euclidiana entre dos posiciones.
+    '''
+    x1, y1 = pos1
+    x2, y2 = pos2
+    return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
 
 def reconstruct_path(came_from, current):
     path = []

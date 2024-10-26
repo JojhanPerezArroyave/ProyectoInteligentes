@@ -6,10 +6,10 @@ from agents.numberMarker import NumberMarker
 from agents.rock import Rock
 from agents.metal import Metal
 from agents.balloon import Balloon
-from utils.search_algorithms import breadth_first_search, depth_first_search, uniform_cost_search, beam_search
+from utils.search_algorithms import breadth_first_search, depth_first_search, uniform_cost_search, beam_search, manhattan_distance, euclidean_distance
 import random
 class BombermanModel(Model):
-    def __init__(self,  map_file, algorithm):
+    def __init__(self,  map_file, algorithm, heuristic):
         super().__init__()
         self.map_file = map_file
         self.grid_width, self.grid_height = self.get_map_dimensions(map_file)
@@ -18,6 +18,7 @@ class BombermanModel(Model):
         self.visited_numbers = {}
         self.previous_positions = {}
         self.algorithm = algorithm  
+        self.heuristic = heuristic
         self.load_map(map_file)
 
     def get_map_dimensions(self, map_file):
@@ -99,6 +100,10 @@ class BombermanModel(Model):
             Returns:
                 list: El camino encontrado hacia la salida.
         """
+        heuristic_func = manhattan_distance if self.heuristic == "Manhattan" else euclidean_distance
+
+        print(f"Ejecutando algoritmo de búsqueda {self.algorithm} con heurística {self.heuristic}...")
+
         if self.algorithm == "BFS":
             return breadth_first_search(start, goal, self)
         elif self.algorithm == "DFS":
@@ -106,7 +111,16 @@ class BombermanModel(Model):
         elif self.algorithm == "UCS":
             return uniform_cost_search(start, goal, self)
         elif self.algorithm == "BS":
-            return beam_search(start, goal, self)
+            return beam_search(start, goal, self, heuristic=heuristic_func)
+        
+    def get_heuristic(self, pos1, pos2):
+        """
+        Calcula la heurística en función de la selección del usuario.
+        """
+        if self.heuristic == "Manhattan":
+            return manhattan_distance(pos1, pos2)
+        elif self.heuristic == "Euclidiana":
+            return euclidean_distance(pos1, pos2)
         
     def add_balloons(self, count):
           for _ in range(count):
@@ -125,4 +139,4 @@ class BombermanModel(Model):
 
     def reset_game(self):
         print("Reiniciando el juego...")
-        self.__init__(self.map_file, self.algorithm) 
+        self.__init__(self.map_file, self.algorithm, self.heuristic) 
