@@ -8,6 +8,7 @@ from core.model import BombermanModel, NumberMarker
 from agents.bomberman import Bomberman
 from agents.rock import Rock
 from agents.metal import Metal
+from agents.joker import Joker
 
 def agent_portrayal(agent):
     portrayal = {"Shape": "rect", "Filled": "true", "Layer": 0}
@@ -45,13 +46,18 @@ def agent_portrayal(agent):
     elif isinstance(agent, Fire):
         portrayal["Shape"] = "assets/Fuego.jpg"
     
+    elif isinstance(agent, Joker):
+        portrayal["Shape"] = "assets/Comodin.png"
+    
     return portrayal
 
-map_file = "data/map.txt"
+map_file = "data/mapa20x20.txt"
 model = BombermanModel(map_file, "BFS", "Manhattan")
 grid = CanvasGrid(agent_portrayal, model.grid_width, model.grid_height, 500, 500)
 algorithm_choice = Choice("Algoritmo de búsqueda", value="BFS", choices=["BFS", "DFS", "UCS", "BS", "HC", "A*"])
 heuristic_choice = Choice("Heurística", value="Manhattan", choices=["Manhattan", "Euclidiana"])
-server = ModularServer(BombermanModel, [grid], "Bomberman Model", {"map_file": map_file, "algorithm": algorithm_choice, "heuristic": heuristic_choice})
+jokers_choice = Choice("Número de comodines", value=3, choices=list(range(1, 11)))
+server = ModularServer(BombermanModel, [grid], "Bomberman Model", {"map_file": map_file, "algorithm": algorithm_choice, 
+                                                                   "heuristic": heuristic_choice, "jokers": jokers_choice})
 server.port = 8521
 server.launch()

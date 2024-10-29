@@ -9,7 +9,7 @@ from agents.balloon import Balloon
 from utils.search_algorithms import breadth_first_search, depth_first_search, uniform_cost_search, beam_search, manhattan_distance, euclidean_distance, hill_climbing, a_star_search
 import random
 class BombermanModel(Model):
-    def __init__(self,  map_file, algorithm, heuristic):
+    def __init__(self,  map_file, algorithm, heuristic, jokers=3):
         super().__init__()
         self.map_file = map_file
         self.grid_width, self.grid_height = self.get_map_dimensions(map_file)
@@ -19,6 +19,8 @@ class BombermanModel(Model):
         self.previous_positions = {}
         self.algorithm = algorithm  
         self.heuristic = heuristic
+        self.jokers = jokers  # Añadir esta línea
+        self.joker_count = 0  # Contador para controlar los comodines
         self.load_map(map_file)
 
     def get_map_dimensions(self, map_file):
@@ -34,6 +36,7 @@ class BombermanModel(Model):
             bomberman_position = None 
             valid_positions = []  
             balloon_positions = []
+            rock_positions = []
 
             for y, line in enumerate(reversed(lines)): 
                 elements = line.strip().split(',')
@@ -45,9 +48,7 @@ class BombermanModel(Model):
                     elif elem == "C_g":
                         balloon_positions.append((x, y))
                     elif elem == "R":
-                        rock = Rock((x, y), self)
-                        self.grid.place_agent(rock, (x, y))
-                        self.schedule.add(rock)
+                        rock_positions.append((x, y))  # Agregar la posición a rock_positions
                     elif elem == "R_s":
                         rock = Rock((x, y), self, has_exit=True)
                         self.grid.place_agent(rock, (x, y))
@@ -55,6 +56,16 @@ class BombermanModel(Model):
                     elif elem == "M":
                         metal = Metal((x, y), self)
                         self.grid.place_agent(metal, (x, y))
+                        
+            # Seleccionar posiciones aleatorias para los comodines
+            joker_positions = random.sample(rock_positions, min(self.jokers, len(rock_positions)))
+            print(f"Se han colocado {joker_positions} comodines en el mapa.")
+            # Colocar las rocas, asignando comodines aleatoriamente
+            for pos in rock_positions:
+                has_power_item = pos in joker_positions
+                rock = Rock(pos, self, has_power_item=has_power_item)
+                self.grid.place_agent(rock, pos)
+                self.schedule.add(rock)
 
             for balloon_position in balloon_positions:
                 balloon = Balloon(balloon_position, self)
