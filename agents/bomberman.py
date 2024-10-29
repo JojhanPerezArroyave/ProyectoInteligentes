@@ -5,6 +5,7 @@ from agents.fire import Fire
 from agents.rock import Rock
 from agents.metal import Metal
 from agents.numberMarker import NumberMarker
+from agents.joker import Joker
 from utils.search_algorithms import breadth_first_search_without_markers, get_neighbors_in_orthogonal_order
 
 
@@ -39,6 +40,20 @@ class Bomberman(Agent):
         if self.return_path:
             self.follow_return_path()  # Seguir el camino de regreso paso por paso
             return
+
+        # Verifica si Bomberman encuentra una roca con un ítem de poder
+        rock = self.model.grid.get_cell_list_contents([self.pos])
+        for obj in rock:
+            print(type(obj))
+            if isinstance(obj, Joker):
+                self.increase_power()  # Incrementa el poder de la bomba
+                
+                x, y = obj.pos
+                number_marker = NumberMarker((x, y), obj.model, obj.value)
+                self.model.grid.remove_agent(obj)  # Eliminar la roca
+                self.model.grid.place_agent(number_marker, (x, y))  # Colocar el NumberMarker
+                self.model.schedule.add(number_marker)  # Añadir al schedule
+                print("¡Bomberman ha recogido un ítem de poder! El poder de la bomba ha aumentado.")
 
         exit_position = self.find_exit_position()
 
@@ -157,7 +172,7 @@ class Bomberman(Agent):
             self.model.grid.move_agent(self, next_safe_step)
             print(f"Bomberman se movió a {next_safe_step} buscando seguridad")
 
-    def follow_return_path(self):
+    def     follow_return_path(self):
         """Mueve a Bomberman paso a paso de regreso al camino original."""
         if self.return_path:
             next_return_step = self.return_path.pop(0)
