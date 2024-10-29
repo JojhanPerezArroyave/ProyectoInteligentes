@@ -7,5 +7,6 @@ class Rock(Agent):
         self.pos = pos
         self.has_exit = has_exit
         self.has_power_item = has_power_item
+        
     def step(self):
         pass

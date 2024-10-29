@@ -4,5 +4,6 @@ class Joker(Agent):
         super().__init__(pos, model)
         self.pos = pos
         self.value = value
+        
     def step(self):
         pass
