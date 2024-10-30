@@ -6,7 +6,7 @@ from agents.metal import Metal
 from agents.rock import Rock
 
 
-def breadth_first_search(start, goal, model):
+def breadth_first_search(start, goal, model, record_state=None):
     queue = deque([start])
     visited = {start}
     came_from = {start: None}
@@ -15,6 +15,9 @@ def breadth_first_search(start, goal, model):
     while queue:
         current = queue.popleft()
         model.place_agent_number(current, step_counter)
+
+        if record_state:
+            record_state(current)
        
         step_counter += 1
 
@@ -33,7 +36,7 @@ def breadth_first_search(start, goal, model):
 
     return None 
 
-def depth_first_search(start, goal, model):
+def depth_first_search(start, goal, model, record_state=None):
     stack = [start]
     visited = {start}
     came_from = {start: None}
@@ -42,6 +45,9 @@ def depth_first_search(start, goal, model):
     while stack:
         current = stack.pop()
         model.place_agent_number(current, step_counter)
+
+        if record_state:
+            record_state(current)
        
         step_counter += 1
 
@@ -62,7 +68,7 @@ def depth_first_search(start, goal, model):
 
     return None 
 
-def uniform_cost_search(start, goal, model):
+def uniform_cost_search(start, goal, model, record_state=None):
     """
     Implementación del algoritmo de búsqueda por costo uniforme (UCS).
     
@@ -96,6 +102,9 @@ def uniform_cost_search(start, goal, model):
         
         # Marcar la casilla con el número de visita
         model.place_agent_number(current_node, step_counter)
+
+        if record_state:
+            record_state(current_node)
        
         step_counter += 1
         
@@ -114,7 +123,7 @@ def uniform_cost_search(start, goal, model):
 
     return None  # Si no se encuentra un camino
 
-def beam_search(start, goal, model, heuristic ,beam_width=2):
+def beam_search(start, goal, model, heuristic ,beam_width=2, record_state=None):
     """
     Implementación del algoritmo Beam Search.
     
@@ -143,6 +152,9 @@ def beam_search(start, goal, model, heuristic ,beam_width=2):
         
         for current_node, _ in queue:
             model.place_agent_number(current_node, step_counter)
+
+            if record_state:
+                record_state(current_node, heuristic(current_node, goal))
             
             step_counter += 1
 
@@ -165,7 +177,7 @@ def beam_search(start, goal, model, heuristic ,beam_width=2):
 
     return None  # Si no se encuentra un camino
 
-def hill_climbing(start, goal, model, heuristic):
+def hill_climbing(start, goal, model, heuristic, record_state=None):
     """
     Implementación del algoritmo de búsqueda Hill Climbing.
     
@@ -184,6 +196,9 @@ def hill_climbing(start, goal, model, heuristic):
 
     while current_node != goal:
         model.place_agent_number(current_node, step_counter)
+
+        if record_state:
+            record_state(current_node, heuristic(current_node, goal))
        
         step_counter += 1
 
@@ -216,7 +231,7 @@ def hill_climbing(start, goal, model, heuristic):
     # Reconstruir el camino hacia la salida
     return reconstruct_path(came_from, current_node)
 
-def a_star_search(start, goal, model, heuristic):
+def a_star_search(start, goal, model, heuristic, record_state=None):
     """
     Implementación del algoritmo de búsqueda A* (A estrella).
     
@@ -244,6 +259,9 @@ def a_star_search(start, goal, model, heuristic):
         
         # Marcar la casilla actual con el número de visita
         model.place_agent_number(current_node, step_counter)
+
+        if record_state:
+            record_state(current_node, heuristic(current_node, goal))
        
         step_counter += 1
 

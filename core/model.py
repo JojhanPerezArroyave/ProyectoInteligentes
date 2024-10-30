@@ -22,7 +22,27 @@ class BombermanModel(Model):
         self.jokers = jokers  # Añadir esta línea
         self.joker_count = 0  # Contador para controlar los comodines
         self.running = True
+        self.export_file = "game_states.txt"
+        
+        # Crear archivo vacío para exportar estados
+        with open(self.export_file, "w") as f:
+            f.write("Estados de juego en pre-orden:\n")
+
         self.load_map(map_file)
+    
+    def record_state(self, position, heuristic_value=None):
+        """
+        Registra el estado en un archivo de texto en preorden.
+        
+        Args:
+            position (tuple): La posición actual de Bomberman.
+            heuristic_value (float, optional): Valor de la heurística (solo para algoritmos informados).
+        """
+        with open(self.export_file, "a", encoding="utf-8") as f:
+            if heuristic_value is not None:
+                f.write(f"Posición: {position}, Heurística: {heuristic_value}\n")
+            else:
+                f.write(f"Posición: {position}\n")
 
     def get_map_dimensions(self, map_file):
         with open(map_file, "r") as f:
@@ -102,32 +122,20 @@ class BombermanModel(Model):
         self.schedule.step()
 
     def run_search_algorithm(self, start, goal):
-        """
-            Ejecuta el algoritmo de búsqueda seleccionado por el usuario.
-
-            Args:
-                start (tuple): La posición inicial de Bomberman.
-                goal (tuple): La posición objetivo (normalmente la salida bajo la roca).
-
-            Returns:
-                list: El camino encontrado hacia la salida.
-        """
         heuristic_func = manhattan_distance if self.heuristic == "Manhattan" else euclidean_distance
 
-       
-
         if self.algorithm == "BFS":
-            return breadth_first_search(start, goal, self)
+            return breadth_first_search(start, goal, self, record_state=self.record_state)
         elif self.algorithm == "DFS":
-            return depth_first_search(start, goal, self)
+            return depth_first_search(start, goal, self, record_state=self.record_state)
         elif self.algorithm == "UCS":
-            return uniform_cost_search(start, goal, self)
+            return uniform_cost_search(start, goal, self, record_state=self.record_state)
         elif self.algorithm == "BS":
-            return beam_search(start, goal, self, heuristic=heuristic_func)
+            return beam_search(start, goal, self, heuristic=heuristic_func, record_state=self.record_state)
         elif self.algorithm == "HC":
-            return hill_climbing(start, goal, self, heuristic=heuristic_func)
+            return hill_climbing(start, goal, self, heuristic=heuristic_func, record_state=self.record_state)
         elif self.algorithm == "A*":
-            return a_star_search(start, goal, self, heuristic=heuristic_func)
+            return a_star_search(start, goal, self, heuristic=heuristic_func, record_state=self.record_state)
         
     def get_heuristic(self, pos1, pos2):
         """
