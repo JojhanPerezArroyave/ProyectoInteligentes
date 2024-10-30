@@ -21,14 +21,14 @@ class Bomberman(Agent):
         self.placed_bomb = False  # Rastrea si ya se ha colocado una bomba
         self.waiting_for_explosion = False  # Indica si Bomberman está esperando que la bomba y el fuego desaparezcan
         self.safe_position = None  # Posición segura donde Bomberman esperará
+        self.exit_position =  self.find_exit_position()  # Posición de la roca con la salida
 
     def move(self):
         """Controla los movimientos de Bomberman y gestiona la lógica de colocación de bombas y movimiento seguro."""
-        
         # Si está esperando en la posición segura, verifica si la explosión ha terminado
         if self.waiting_for_explosion:
             if self.is_explosion_over():
-                print("La explosión ha terminado, Bomberman retoma su camino.")
+            
                 self.waiting_for_explosion = False
                 self.placed_bomb = False
                 self.calculate_return_path()  # Calcula el camino de regreso al camino original
@@ -44,7 +44,7 @@ class Bomberman(Agent):
         # Verifica si Bomberman encuentra una roca con un ítem de poder
         rock = self.model.grid.get_cell_list_contents([self.pos])
         for obj in rock:
-            print(type(obj))
+          
             if isinstance(obj, Joker):
                 self.increase_power()  # Incrementa el poder de la bomba
                 
@@ -53,14 +53,14 @@ class Bomberman(Agent):
                 self.model.grid.remove_agent(obj)  # Eliminar la roca
                 self.model.grid.place_agent(number_marker, (x, y))  # Colocar el NumberMarker
                 self.model.schedule.add(number_marker)  # Añadir al schedule
-                print("¡Bomberman ha recogido un ítem de poder! El poder de la bomba ha aumentado.")
+
 
         exit_position = self.find_exit_position()
 
         # Si la salida está libre, moverse directamente hacia allí
         if self.exit_found and exit_position and not self.is_block_present(exit_position):
             self.model.grid.move_agent(self, exit_position)
-            print("¡Bomberman ha alcanzado la salida!")
+        
             self.model.finish_game()
             return
 
@@ -74,8 +74,7 @@ class Bomberman(Agent):
         # Calcular un nuevo camino si es necesario
         if exit_position and not self.path:
             self.path = self.model.run_search_algorithm(self.pos, exit_position)
-            print(f"Camino encontrado: {self.path}")
-
+          
         # Colocar bomba si un bloque está en el camino
         if self.is_block_in_the_way() and not self.placed_bomb:
             self.place_bomb()
@@ -86,7 +85,7 @@ class Bomberman(Agent):
     def increase_power(self):
         """Incrementa el poder de destrucción cuando Bomberman encuentra un comodín."""
         self.power += 1
-        print(f"Poder de destrucción incrementado a: {self.power}")
+       
 
     def is_adjacent(self, position):
         """Comprueba si Bomberman está en una posición adyacente a la dada."""
@@ -114,7 +113,7 @@ class Bomberman(Agent):
         self.model.grid.place_agent(bomb, self.pos)
         self.model.schedule.add(bomb)
         self.placed_bomb = True
-        print(f"Bomba colocada con tiempo de detonación: {self.power + 2}")
+      
 
     def calculate_safe_path(self):
         """Calcula el camino paso a paso hacia una posición segura usando un BFS sin marcar casillas."""
@@ -126,7 +125,7 @@ class Bomberman(Agent):
             if self.is_safe_position(current_pos):
                 self.safe_position = current_pos
                 self.safe_path = breadth_first_search_without_markers(self.pos, current_pos, self.model)
-                print(f"Camino hacia posición segura calculado: {self.safe_path}")
+              
                 self.waiting_for_explosion = True
                 return
 
@@ -156,7 +155,7 @@ class Bomberman(Agent):
             self.return_path = breadth_first_search_without_markers(self.pos, self.path[0], self.model)
             if self.return_path:
                 self.return_path = self.return_path[1:]  # Evitar incluir la posición actual en el retorno
-            print(f"Camino de regreso al camino original calculado: {self.return_path}")
+          
 
     def is_explosion_over(self):
         """Verifica si todos los agentes bomba y fuego han sido eliminados del modelo."""
@@ -170,14 +169,14 @@ class Bomberman(Agent):
         if self.safe_path:
             next_safe_step = self.safe_path.pop(0)
             self.model.grid.move_agent(self, next_safe_step)
-            print(f"Bomberman se movió a {next_safe_step} buscando seguridad")
+          
 
-    def     follow_return_path(self):
+    def follow_return_path(self):
         """Mueve a Bomberman paso a paso de regreso al camino original."""
         if self.return_path:
             next_return_step = self.return_path.pop(0)
             self.model.grid.move_agent(self, next_return_step)
-            print(f"Bomberman regresando al camino original, movido a {next_return_step}")
+          
 
     def find_exit_position(self):
         """Busca la posición de la roca que contiene la salida (R_s)."""
@@ -191,6 +190,12 @@ class Bomberman(Agent):
         if self.path:
             next_position = self.path.pop(0)
             self.model.grid.move_agent(self, next_position)
+        
+            if next_position == self.exit_position:  
+                print("¡Bomberman ha alcanzado la salida!")
+                self.model.reset_game()  
+
+
 
     def step(self):
         self.move()

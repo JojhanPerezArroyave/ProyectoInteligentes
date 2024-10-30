@@ -43,7 +43,7 @@ class Bomb(Agent):
                 
                 # Si encuentra una roca, hacerla explotar y convertirla en un NumberMarker
                 for obj in cell_contents:
-                    if isinstance(obj, Rock) and obj.has_power_item:
+                    if isinstance(obj, Rock) and obj.has_power_item and obj.unique_id in self.model.visited_numbers:
                         # Crear el marcador numérico y transferir el ítem de poder si está presente
                         number_marker = Joker((x, y), self.model, self.model.visited_numbers[obj.unique_id])
                         self.model.grid.remove_agent(obj)  # Eliminar la roca

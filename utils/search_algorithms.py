@@ -15,7 +15,7 @@ def breadth_first_search(start, goal, model):
     while queue:
         current = queue.popleft()
         model.place_agent_number(current, step_counter)
-        print(f"Casilla {current} marcada con el número {step_counter}")  # Imprimir en consola
+       
         step_counter += 1
 
         # Si estamos en una casilla adyacente a la roca con la salida, terminamos la búsqueda
@@ -42,7 +42,7 @@ def depth_first_search(start, goal, model):
     while stack:
         current = stack.pop()
         model.place_agent_number(current, step_counter)
-        print(f"Casilla {current} marcada con el número {step_counter}")  
+       
         step_counter += 1
 
         # Si estamos en una casilla adyacente a la roca con la salida, terminamos la búsqueda
@@ -96,7 +96,7 @@ def uniform_cost_search(start, goal, model):
         
         # Marcar la casilla con el número de visita
         model.place_agent_number(current_node, step_counter)
-        print(f"Casilla {current_node} marcada con el número {step_counter}")  # Imprimir en consola
+       
         step_counter += 1
         
         # Verificar si el nodo actual está adyacente a la meta
@@ -143,7 +143,7 @@ def beam_search(start, goal, model, heuristic ,beam_width=2):
         
         for current_node, _ in queue:
             model.place_agent_number(current_node, step_counter)
-            print(f"Casilla {current_node} marcada con el número {step_counter}")  # Imprimir en consola
+            
             step_counter += 1
 
             # Si estamos en una casilla adyacente a la roca con la salida, terminamos la búsqueda
@@ -184,7 +184,7 @@ def hill_climbing(start, goal, model, heuristic):
 
     while current_node != goal:
         model.place_agent_number(current_node, step_counter)
-        print(f"Casilla {current_node} marcada con el número {step_counter}")  # Imprimir en consola
+       
         step_counter += 1
 
         # Obtener vecinos en el orden ortogonal
@@ -198,7 +198,7 @@ def hill_climbing(start, goal, model, heuristic):
 
         # Si no hay vecinos válidos, alcanzamos un óptimo local
         if not valid_neighbors:
-            print("Óptimo local alcanzado, no hay mejoras posibles.")
+          
             return reconstruct_path(came_from, current_node)
         
         # Elegir el vecino con el menor valor heurístico
@@ -206,7 +206,7 @@ def hill_climbing(start, goal, model, heuristic):
 
         # Si el vecino seleccionado no mejora, terminamos (óptimo local)
         if heuristic(next_node, goal) >= heuristic(current_node, goal):
-            print("Óptimo local alcanzado, no se puede avanzar.")
+         
             return reconstruct_path(came_from, current_node)
 
         # Actualizar el camino
@@ -244,7 +244,7 @@ def a_star_search(start, goal, model, heuristic):
         
         # Marcar la casilla actual con el número de visita
         model.place_agent_number(current_node, step_counter)
-        print(f"Casilla {current_node} marcada con el número {step_counter}")  # Imprimir en consola
+       
         step_counter += 1
 
         # Si el nodo actual está adyacente a la meta, se reconstruye el camino

@@ -28,12 +28,12 @@ class Balloon(Agent):
         ballon = next(agent for agent in self.model.schedule.agents if isinstance(agent, Balloon))
 
         if new_position == bomberman.pos or bomberman.pos == ballon.pos:
-            print("¡Colisión detectada! Reiniciando la partida...")
+         
             self.model.reset_game()  
         
         if (self.model.previous_positions.get(bomberman) == new_position and
               self.model.previous_positions.get(self) == bomberman.pos):
-            print("¡Colisión por intercambio de posiciones! Reiniciando la partida...")
+           
             self.model.reset_game()
 
     def step(self):

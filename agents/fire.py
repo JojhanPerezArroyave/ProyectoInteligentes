@@ -19,10 +19,10 @@ class Fire(Agent):
             for obj in cell_contents:
                 if isinstance(obj, Rock):  # Destruye todas las rocas, incluyendo la que tiene salida
                     self.model.grid.remove_agent(obj)
-                    print(f"Roca destruida en {self.pos}, convirtiéndose en camino")
+                  
                 elif isinstance(obj, Balloon):  # Eliminar globos afectados por la explosión
                     self.model.grid.remove_agent(obj)
-                    print(f"Globo destruido en {self.pos} por la explosión")
+                   
                     
             # Convertir la posición en camino libre y eliminar el FireMarker
             self.model.grid.remove_agent(self)

@@ -59,7 +59,7 @@ class BombermanModel(Model):
                         
             # Seleccionar posiciones aleatorias para los comodines
             joker_positions = random.sample(rock_positions, min(self.jokers, len(rock_positions)))
-            print(f"Se han colocado {joker_positions} comodines en el mapa.")
+          
             # Colocar las rocas, asignando comodines aleatoriamente
             for pos in rock_positions:
                 has_power_item = pos in joker_positions
@@ -113,7 +113,7 @@ class BombermanModel(Model):
         """
         heuristic_func = manhattan_distance if self.heuristic == "Manhattan" else euclidean_distance
 
-        print(f"Ejecutando algoritmo de búsqueda {self.algorithm} con heurística {self.heuristic}...")
+       
 
         if self.algorithm == "BFS":
             return breadth_first_search(start, goal, self)
@@ -153,5 +153,5 @@ class BombermanModel(Model):
         self.previous_positions[agent] = new_position
 
     def reset_game(self):
-        print("Reiniciando el juego...")
-        self.__init__(self.map_file, self.algorithm, self.heuristic) 
+      
+        self.__init__(self.map_file, self.algorithm, self.heuristic, self.jokers) 
