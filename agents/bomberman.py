@@ -192,8 +192,7 @@ class Bomberman(Agent):
             self.model.grid.move_agent(self, next_position)
         
             if next_position == self.exit_position:  
-                print("¡Bomberman ha alcanzado la salida!")
-                self.model.reset_game()  
+                self.model.finish_game()
 
 
 

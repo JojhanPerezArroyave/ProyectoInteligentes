@@ -21,6 +21,7 @@ class BombermanModel(Model):
         self.heuristic = heuristic
         self.jokers = jokers  # Añadir esta línea
         self.joker_count = 0  # Contador para controlar los comodines
+        self.running = True
         self.load_map(map_file)
 
     def get_map_dimensions(self, map_file):
@@ -152,6 +153,10 @@ class BombermanModel(Model):
     def update_previous_position(self, agent, new_position):
         self.previous_positions[agent] = new_position
 
-    def reset_game(self):
-      
+    def reset_game(self):      
         self.__init__(self.map_file, self.algorithm, self.heuristic, self.jokers) 
+
+    def finish_game(self):
+        """Detiene el juego al finalizar."""
+        print("¡Juego detenido! Bomberman ha alcanzado la salida.")
+        self.running = False 
