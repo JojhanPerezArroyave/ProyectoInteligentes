@@ -3,5 +3,5 @@ C,M,C,M,C,M,C
 R,C,C,C,C,C,C
 C,M,C,M,C,M,C
 C,C,R,M,C_g,C,C
-C,C,M,C,C,M,C
-R,C,R_s,C,C,C,C
+C,C,M,R,C,M,C
+R,C,R_s,C_g,R,C,C

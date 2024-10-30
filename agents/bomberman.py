@@ -197,4 +197,6 @@ class Bomberman(Agent):
 
 
     def step(self):
+        self.model.update_previous_position(self, self.pos)
         self.move()
+        
