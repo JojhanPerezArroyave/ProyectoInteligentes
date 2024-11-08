@@ -1,10 +1,8 @@
 from collections import deque
 from heapq import heappush, heappop
 from itertools import count
-
 from agents.metal import Metal
 from agents.rock import Rock
-
 
 def breadth_first_search(start, goal, model, record_state=None):
     queue = deque([start])
@@ -179,7 +177,7 @@ def beam_search(start, goal, model, heuristic ,beam_width=2, record_state=None):
 
 def hill_climbing(start, goal, model, heuristic, record_state=None):
     """
-    Implementación del algoritmo de búsqueda Hill Climbing.
+    Implementación del algoritmo de Hill Climbing con retroceso inteligente.
     
     Args:
         start (tuple): Posición inicial de Bomberman.
@@ -193,43 +191,54 @@ def hill_climbing(start, goal, model, heuristic, record_state=None):
     current_node = start
     came_from = {start: None}
     step_counter = 0
+    stack = [(current_node, [])]  # Pila de retroceso que incluye el nodo actual y sus vecinos ordenados
 
     while current_node != goal:
         model.place_agent_number(current_node, step_counter)
 
         if record_state:
             record_state(current_node, heuristic(current_node, goal))
-       
+
         step_counter += 1
 
-        # Obtener vecinos en el orden ortogonal
+        # Obtener vecinos y calcular heurística, luego ordenarlos por el valor heurístico
         neighbors = get_neighbors_in_orthogonal_order(current_node, model)
-        # Filtrar vecinos válidos y calcular sus valores heurísticos
-        valid_neighbors = [
-            (neighbor, heuristic(neighbor, goal))
-            for neighbor in neighbors
-            if is_valid_move(neighbor, model) and neighbor not in came_from
-        ]
+        valid_neighbors = sorted(
+            [(neighbor, heuristic(neighbor, goal)) for neighbor in neighbors if is_valid_move(neighbor, model)],
+            key=lambda x: x[1]
+        )
 
-        # Si no hay vecinos válidos, alcanzamos un óptimo local
-        if not valid_neighbors:
-          
-            return reconstruct_path(came_from, current_node)
-        
-        # Elegir el vecino con el menor valor heurístico
-        next_node, _ = min(valid_neighbors, key=lambda x: x[1])
+        # Si hay vecinos, explorar el que tiene el menor valor heurístico
+        if valid_neighbors:
+            # Filtrar vecinos ya explorados
+            valid_neighbors = [neighbor for neighbor in valid_neighbors if neighbor[0] not in came_from]
 
-        # Si el vecino seleccionado no mejora, terminamos (óptimo local)
-        if heuristic(next_node, goal) >= heuristic(current_node, goal):
-         
-            return reconstruct_path(came_from, current_node)
+            # Si encontramos un vecino sin explorar, lo añadimos
+            if valid_neighbors:
+                next_node, _ = valid_neighbors[0]  # Elegir el vecino con menor valor heurístico
+                came_from[next_node] = current_node
+                current_node = next_node
+                stack.append((current_node, valid_neighbors[1:]))  # Guardamos el nodo actual y opciones restantes
+                continue
 
-        # Actualizar el camino
-        came_from[next_node] = current_node
-        current_node = next_node
+        # Si alcanzamos un punto sin salida, retrocedemos en la pila
+        while stack:
+            last_node, remaining_options = stack.pop()
+
+            # Si hay opciones restantes en este nodo, continuamos desde aquí
+            if remaining_options:
+                next_node, _ = remaining_options.pop(0)
+                stack.append((last_node, remaining_options))  # Actualizamos la pila con las opciones restantes
+                came_from[next_node] = last_node
+                current_node = next_node
+                break
+        else:
+            # Si la pila está vacía, hemos explorado todos los caminos sin éxito
+            return None
 
     # Reconstruir el camino hacia la salida
     return reconstruct_path(came_from, current_node)
+
 
 def a_star_search(start, goal, model, heuristic, record_state=None):
     """

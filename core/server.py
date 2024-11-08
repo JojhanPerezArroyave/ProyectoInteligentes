@@ -51,7 +51,7 @@ def agent_portrayal(agent):
     
     return portrayal
 
-map_file = "data/map.txt"
+map_file = "data/mapa2.txt"
 model = BombermanModel(map_file, "BFS", "Manhattan")
 grid = CanvasGrid(agent_portrayal, model.grid_width, model.grid_height, 500, 500)
 algorithm_choice = Choice("Algoritmo de búsqueda", value="BFS", choices=["BFS", "DFS", "UCS", "BS", "HC", "A*"])
