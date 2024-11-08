@@ -177,7 +177,7 @@ def beam_search(start, goal, model, heuristic ,beam_width=2, record_state=None):
 
 def hill_climbing(start, goal, model, heuristic, record_state=None):
     """
-    Implementación del algoritmo de Hill Climbing con retroceso inteligente.
+    Implementación modificada del algoritmo de búsqueda Hill Climbing con retroceso a niveles iniciales.
     
     Args:
         start (tuple): Posición inicial de Bomberman.
@@ -191,53 +191,46 @@ def hill_climbing(start, goal, model, heuristic, record_state=None):
     current_node = start
     came_from = {start: None}
     step_counter = 0
-    stack = [(current_node, [])]  # Pila de retroceso que incluye el nodo actual y sus vecinos ordenados
+    backtrack_stack = []
+    visited = set()  # Conjunto de nodos visitados
 
     while current_node != goal:
-        model.place_agent_number(current_node, step_counter)
+        
+        if current_node not in visited:
+            model.place_agent_number(current_node, step_counter)
+            visited.add(current_node)
 
-        if record_state:
-            record_state(current_node, heuristic(current_node, goal))
+            if record_state:
+                record_state(current_node, heuristic(current_node, goal))
+            step_counter += 1
 
-        step_counter += 1
-
-        # Obtener vecinos y calcular heurística, luego ordenarlos por el valor heurístico
+        # Obtener vecinos en el orden ortogonal
         neighbors = get_neighbors_in_orthogonal_order(current_node, model)
-        valid_neighbors = sorted(
-            [(neighbor, heuristic(neighbor, goal)) for neighbor in neighbors if is_valid_move(neighbor, model)],
-            key=lambda x: x[1]
-        )
+        
+        # Filtrar vecinos válidos y calcular sus valores heurísticos
+        valid_neighbors = [
+            (neighbor, heuristic(neighbor, goal))
+            for neighbor in neighbors
+            if is_valid_move(neighbor, model) and neighbor not in visited
+        ]
 
-        # Si hay vecinos, explorar el que tiene el menor valor heurístico
+        # Si hay vecinos válidos, elige el vecino con la mejor heurística y almacena el nivel actual
         if valid_neighbors:
-            # Filtrar vecinos ya explorados
-            valid_neighbors = [neighbor for neighbor in valid_neighbors if neighbor[0] not in came_from]
-
-            # Si encontramos un vecino sin explorar, lo añadimos
-            if valid_neighbors:
-                next_node, _ = valid_neighbors[0]  # Elegir el vecino con menor valor heurístico
-                came_from[next_node] = current_node
-                current_node = next_node
-                stack.append((current_node, valid_neighbors[1:]))  # Guardamos el nodo actual y opciones restantes
-                continue
-
-        # Si alcanzamos un punto sin salida, retrocedemos en la pila
-        while stack:
-            last_node, remaining_options = stack.pop()
-
-            # Si hay opciones restantes en este nodo, continuamos desde aquí
-            if remaining_options:
-                next_node, _ = remaining_options.pop(0)
-                stack.append((last_node, remaining_options))  # Actualizamos la pila con las opciones restantes
-                came_from[next_node] = last_node
-                current_node = next_node
-                break
+            # Select the neighbor with the best heuristic score
+            next_node, _ = min(valid_neighbors, key=lambda x: x[1])
+            came_from[next_node] = current_node
+            backtrack_stack.append(current_node)
+            current_node = next_node
         else:
-            # Si la pila está vacía, hemos explorado todos los caminos sin éxito
-            return None
+            # Backtrack if no valid neighbors are found
+            if backtrack_stack:
+                current_node = backtrack_stack.pop(0)
+            else:
+                # No path found; return None if stack is empty
+                return None
 
     # Reconstruir el camino hacia la salida
-    return reconstruct_path(came_from, current_node)
+    return reconstruct_path(came_from, current_node) if current_node == goal else None
 
 
 def a_star_search(start, goal, model, heuristic, record_state=None):
