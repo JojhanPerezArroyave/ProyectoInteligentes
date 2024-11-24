@@ -1,8 +1,9 @@
 Estados de juego en pre-orden:
-Posición: (3, 2), Heurística: 2
-Posición: (2, 2), Heurística: 3
-Posición: (1, 2), Heurística: 4
-Posición: (1, 1), Heurística: 3
-Posición: (1, 0), Heurística: 2
-Posición: (2, 0), Heurística: 1
-Posición: (3, 0), Heurística: 0
+Posición: (3, 2)
+Posición: (2, 2)
+Posición: (1, 2)
+Posición: (1, 1)
+Posición: (1, 0)
+Posición: (0, 0)
+Posición: (2, 0)
+Posición: (3, 0)
