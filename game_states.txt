@@ -1,9 +1,1 @@
 Estados de juego en pre-orden:
-Posición: (3, 2)
-Posición: (2, 2)
-Posición: (1, 2)
-Posición: (1, 1)
-Posición: (1, 0)
-Posición: (0, 0)
-Posición: (2, 0)
-Posición: (3, 0)

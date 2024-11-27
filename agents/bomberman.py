@@ -136,13 +136,22 @@ class Bomberman(Agent):
                     queue.append((neighbor, 1))
 
     def is_safe_position(self, pos):
-        """Determina si una posición está fuera del alcance de la explosión."""
+        """Determina si una posición está fuera del alcance de la explosión y no contiene obstáculos como rocas."""
         x, y = self.pos
         px, py = pos
-        return abs(px - x) > self.power or abs(py - y) > self.power
+        if not (x == px and abs(py - y) <= self.power) and not (y == py and abs(px - x) <= self.power):
+            # Verifica que la posición no contenga una roca
+            cell_contents = self.model.grid.get_cell_list_contents(pos)
+            if not any(isinstance(obj, Rock) for obj in cell_contents):
+                return True
+        return False
+
 
     def is_valid_move_for_escape(self, pos):
         """Determina si Bomberman puede moverse a una posición para escapar de la explosión."""
+        x, y = pos
+        if (x, y) == (1,2):
+            print("hola")
         cell_contents = self.model.grid.get_cell_list_contents(pos)
         for obj in cell_contents:
             if isinstance(obj, Rock) or isinstance(obj, Metal):
