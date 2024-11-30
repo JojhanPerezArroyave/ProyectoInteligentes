@@ -6,10 +6,13 @@ from agents.numberMarker import NumberMarker
 from agents.rock import Rock
 from agents.metal import Metal
 from agents.balloon import Balloon
-from utils.search_algorithms import breadth_first_search, depth_first_search, uniform_cost_search, beam_search, manhattan_distance, euclidean_distance, hill_climbing, a_star_search
+from utils.search_algorithms import (breadth_first_search, depth_first_search, uniform_cost_search,
+                                      beam_search, manhattan_distance, euclidean_distance, 
+                                      hill_climbing, a_star_search, alpha_beta_search, bomberman_heuristic,
+                                      balloon_heuristic)
 import random
 class BombermanModel(Model):
-    def __init__(self,  map_file, algorithm, heuristic, jokers=3):
+    def __init__(self,  map_file, algorithm, heuristic, jokers=3, alpha_beta_depth=3):
         super().__init__()
         self.map_file = map_file
         self.grid_width, self.grid_height = self.get_map_dimensions(map_file)
@@ -21,6 +24,7 @@ class BombermanModel(Model):
         self.heuristic = heuristic
         self.jokers = jokers  # Añadir esta línea
         self.joker_count = 0  # Contador para controlar los comodines
+        self.alpha_beta_depth = alpha_beta_depth 
         self.running = True
         self.export_file = "game_states.txt"
         
@@ -121,7 +125,15 @@ class BombermanModel(Model):
     def step(self):
         self.schedule.step()
 
-    def run_search_algorithm(self, start, goal):
+    def run_search_algorithm(self, start, goal, is_balloon=False):
+
+        if self.algorithm == "AlphaBeta":
+            heuristic_func = balloon_heuristic if is_balloon else bomberman_heuristic
+            return alpha_beta_search(
+                start, goal, self, depth=self.alpha_beta_depth, 
+                is_maximizing=not is_balloon, record_state=self.record_state
+            )[0]  # Solo devolver la posición óptima
+
         heuristic_func = manhattan_distance if self.heuristic == "Manhattan" else euclidean_distance
 
         if self.algorithm == "BFS":

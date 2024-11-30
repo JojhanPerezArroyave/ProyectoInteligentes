@@ -51,10 +51,10 @@ def agent_portrayal(agent):
     
     return portrayal
 
-map_file = "data/map.txt"
+map_file = "data/mapa10x10.txt"
 model = BombermanModel(map_file, "BFS", "Manhattan")
 grid = CanvasGrid(agent_portrayal, model.grid_width, model.grid_height, 500, 500)
-algorithm_choice = Choice("Algoritmo de búsqueda", value="BFS", choices=["BFS", "DFS", "UCS", "BS", "HC", "A*"])
+algorithm_choice = Choice("Algoritmo de búsqueda", value="BFS", choices=["BFS", "DFS", "UCS", "BS", "HC", "A*", "AlphaBeta"])
 heuristic_choice = Choice("Heurística", value="Manhattan", choices=["Manhattan", "Euclidiana"])
 #cambiar el rango por 0
 jokers_choice = Choice("Número de comodines", value=3, choices=list(range(1, 11)))

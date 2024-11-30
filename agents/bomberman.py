@@ -70,6 +70,12 @@ class Bomberman(Agent):
             self.exit_found = True
             self.calculate_safe_path()
             return
+        
+        if self.model.algorithm == "AlphaBeta":
+            best_move = self.model.run_search_algorithm(self.pos, exit_position, is_balloon=False)
+            if best_move:
+                self.model.grid.move_agent(self, best_move)
+            return
 
         # Calcular un nuevo camino si es necesario
         if exit_position and not self.path:
