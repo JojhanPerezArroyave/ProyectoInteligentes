@@ -1,20 +1,53 @@
 Estados de juego en pre-orden:
-Posición: (3, 6), Heurística: 23.0
-Posición: (2, 5), Heurística: 25.0
-Posición: (2, 7), Heurística: 26.0
-Posición: (1, 6), Heurística: 28.0
-Posición: (3, 8), Heurística: 24.0
-Posición: (2, 7), Heurística: 26.0
-Posición: (1, 8), Heurística: 29.0
-Posición: (2, 7), Heurística: 26.0
-Posición: (1, 6), Heurística: 28.0
-Posición: (3, 6), Heurística: 23.0
-Posición: (2, 5), Heurística: 25.0
-Posición: (2, 7), Heurística: 26.0
-Posición: (1, 6), Heurística: 28.0
-Posición: (3, 8), Heurística: 24.0
-Posición: (2, 7), Heurística: 26.0
-Posición: (1, 8), Heurística: 29.0
-Posición: (2, 7), Heurística: 26.0
-Posición: (1, 6), Heurística: 28.0
-Posición: (1, 8), Heurística: 29.0
+Posición: (1, 7)
+Posición: (1, 8)
+Posición: (2, 7)
+Posición: (1, 6)
+Posición: (2, 8)
+Posición: (2, 6)
+Posición: (3, 8)
+Posición: (3, 6)
+Posición: (2, 5)
+Posición: (4, 8)
+Posición: (3, 5)
+Posición: (2, 4)
+Posición: (5, 8)
+Posición: (4, 7)
+Posición: (4, 5)
+Posición: (3, 4)
+Posición: (1, 4)
+Posición: (2, 3)
+Posición: (6, 8)
+Posición: (5, 7)
+Posición: (5, 5)
+Posición: (3, 3)
+Posición: (1, 3)
+Posición: (2, 2)
+Posición: (7, 8)
+Posición: (6, 7)
+Posición: (5, 6)
+Posición: (6, 5)
+Posición: (5, 4)
+Posición: (4, 3)
+Posición: (1, 2)
+Posición: (2, 1)
+Posición: (8, 8)
+Posición: (7, 7)
+Posición: (6, 6)
+Posición: (7, 5)
+Posición: (5, 3)
+Posición: (4, 2)
+Posición: (1, 1)
+Posición: (3, 1)
+Posición: (8, 7)
+Posición: (7, 6)
+Posición: (8, 5)
+Posición: (7, 4)
+Posición: (5, 2)
+Posición: (4, 1)
+Posición: (8, 6)
+Posición: (8, 4)
+Posición: (7, 3)
+Posición: (5, 1)
+Posición: (8, 3)
+Posición: (7, 2)
