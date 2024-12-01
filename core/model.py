@@ -126,7 +126,6 @@ class BombermanModel(Model):
         self.schedule.step()
 
     def run_search_algorithm(self, start, goal, is_balloon=False):
-
         if self.algorithm == "AlphaBeta":
             heuristic_func = balloon_heuristic if is_balloon else bomberman_heuristic
             return alpha_beta_search(
