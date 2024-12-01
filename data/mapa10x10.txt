@@ -6,5 +6,5 @@ M,M,C,C,C,C,C,C,C,M
 M,C,C,R,M,C,M,C,C,M
 M,C,C,C,C,C,M,C,C,M
 M,C,C,M,R,C,M,R_s,C,M
-M,R,C,C,C,C,C,C,C_g,M
-M,M,M,M,M,M,M,M,M,M
+M,R,C,C,C,C,C,C,C,M
+C_g,M,M,M,M,M,M,M,M,M

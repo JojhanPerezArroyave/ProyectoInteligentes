@@ -384,19 +384,17 @@ def is_valid_move_for_escape(pos, model):
 def bomberman_heuristic(pos, goal, model):
     from agents.balloon import Balloon
     # Distancia Manhattan a la salida
-    manhattan = abs(pos[0] - goal[0]) + abs(pos[1] - goal[1])
-    escape_value = 0
+    distance_to_goal = abs(pos[0] - goal[0]) + abs(pos[1] - goal[1])
+    danger_penalty = 0
 
-    # Penalizar globos cercanos
+    # Penalización basada en la distancia a los globos
     for agent in model.schedule.agents:
         if isinstance(agent, Balloon):
             balloon_distance = abs(pos[0] - agent.pos[0]) + abs(pos[1] - agent.pos[1])
-            escape_value += max(0, 10 - balloon_distance)  # Penalizar más globos cercanos
+            danger_penalty += max(0, 20 - balloon_distance)  # Penalización más fuerte para globos cercanos
 
-    # Balancear el peso de la salida y la penalización
-    return manhattan + 0.5 * escape_value
-
-
+    # Combinación: Más peso a acercarse a la salida, menos peso a los globos
+    return 1.5 * distance_to_goal + danger_penalty
 
 # Nueva heurística: Globos (Acercarse a Bomberman)
 def balloon_heuristic(pos, bomberman_pos, model):

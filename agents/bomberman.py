@@ -29,39 +29,45 @@ class Bomberman(Agent):
         # Si está esperando en la posición segura, verifica si la explosión ha terminado
         if self.waiting_for_explosion:
             if self.is_explosion_over():
-            
                 self.waiting_for_explosion = False
                 self.placed_bomb = False
-                self.calculate_return_path()  # Calcula el camino de regreso al camino original
+
+                # Reiniciar el proceso de búsqueda desde la posición segura
+                if self.model.algorithm == "AlphaBeta":
+                    self.path = []  # Reiniciar cualquier camino previo
+                return
             else:
                 self.follow_safe_path()  # Moverse en el camino seguro paso a paso
-            return
+                return
 
-        # Si Bomberman está en el proceso de regresar al camino original
-        if self.return_path:
-            self.follow_return_path()  # Seguir el camino de regreso paso por paso
+        # Si Bomberman tiene un camino hacia la salida calculado, seguir paso a paso
+        if self.model.algorithm == "AlphaBeta" and self.path:
+            next_position = self.path.pop(0)
+            self.model.grid.move_agent(self, next_position)
+
+            # Recalcular si llegamos al final del camino actual
+            if not self.path:
+                exit_position = self.find_exit_position()
+                if exit_position:
+                    self.path = self.model.run_search_algorithm(self.pos, exit_position, is_balloon=False)
             return
 
         # Verifica si Bomberman encuentra una roca con un ítem de poder
         rock = self.model.grid.get_cell_list_contents([self.pos])
         for obj in rock:
-          
             if isinstance(obj, Joker):
                 self.increase_power()  # Incrementa el poder de la bomba
-                
                 x, y = obj.pos
                 number_marker = NumberMarker((x, y), obj.model, obj.value)
                 self.model.grid.remove_agent(obj)  # Eliminar la roca
                 self.model.grid.place_agent(number_marker, (x, y))  # Colocar el NumberMarker
                 self.model.schedule.add(number_marker)  # Añadir al schedule
 
-
         exit_position = self.find_exit_position()
 
         # Si la salida está libre, moverse directamente hacia allí
         if self.exit_found and exit_position and not self.is_block_present(exit_position):
             self.model.grid.move_agent(self, exit_position)
-        
             self.model.finish_game()
             return
 
@@ -69,41 +75,56 @@ class Bomberman(Agent):
         if exit_position and self.is_adjacent(exit_position) and not self.exit_found:
             self.place_bomb()
             self.exit_found = True
-            self.calculate_safe_path()
-            return
-        
-        if self.model.algorithm == "AlphaBeta":
-            best_move = self.model.run_search_algorithm(self.pos, exit_position, is_balloon=False)
-            print(f"Bomberman está en {self.pos}. Mejor movimiento calculado: {best_move}")
-
-            # Reconsiderar otros vecinos si el mejor movimiento es parte del ciclo
-            if best_move in self.visited_positions:
-                print(f"Evitando ciclo: {best_move} ya visitado recientemente. Recalculando...")
-                neighbors = get_neighbors_in_orthogonal_order(self.pos, self.model)
-                valid_alternatives = [n for n in neighbors if n not in self.visited_positions and is_valid_move(n, self.model)]
-                
-                # Elegir la mejor alternativa válida
-                if valid_alternatives:
-                    best_move = min(valid_alternatives, key=lambda n: bomberman_heuristic(n, exit_position, self.model))
-                    print(f"Nueva mejor opción después de evitar ciclo: {best_move}")
-
-            # Si hay un movimiento válido, ejecutarlo
-            if best_move and best_move not in self.visited_positions:
-                self.visited_positions.append(best_move)
-                self.model.grid.move_agent(self, best_move)
+            if self.model.algorithm == "AlphaBeta":
+                self.calculate_safe_path_alpha_beta()  # Nueva lógica para poda alfa-beta
+            else:
+                self.calculate_safe_path()
             return
 
+        # Para poda alfa-beta: buscar el siguiente movimiento si no hay un camino actual
+        if self.model.algorithm == "AlphaBeta" and not self.path:
+            self.path = self.model.run_search_algorithm(self.pos, exit_position, is_balloon=False)
+            if self.path:
+                next_position = self.path.pop(0)
+                self.model.grid.move_agent(self, next_position)
+            return
 
-        # Calcular un nuevo camino si es necesario
+        # Para otros algoritmos, seguir el camino actual o recalcularlo si es necesario
         if exit_position and not self.path:
             self.path = self.model.run_search_algorithm(self.pos, exit_position)
-          
-        # Colocar bomba si un bloque está en el camino
+
         if self.is_block_in_the_way() and not self.placed_bomb:
             self.place_bomb()
-            self.calculate_safe_path()
+            if self.model.algorithm == "AlphaBeta":
+                self.calculate_safe_path_alpha_beta()
+            else:
+                self.calculate_safe_path()
         else:
             self.follow_path()  # Moverse si no hay bloque en el camino
+
+
+    def calculate_safe_path_alpha_beta(self):
+        """Calcula la posición segura considerando globos y explosión mediante poda alfa-beta."""
+        safe_positions = []
+        queue = deque([(self.pos, 0)])
+        visited = set([self.pos])
+
+        while queue:
+            current_pos, _ = queue.popleft()
+            if self.is_safe_position(current_pos):
+                safe_positions.append(current_pos)
+
+            for neighbor in get_neighbors_in_orthogonal_order(current_pos, self.model):
+                if neighbor not in visited and self.is_valid_move_for_escape(neighbor):
+                    visited.add(neighbor)
+                    queue.append((neighbor, 1))
+
+        if safe_positions:
+            # Ordenar posiciones seguras basadas en heurística para evitar globos
+            safe_positions = sorted(safe_positions, key=lambda pos: bomberman_heuristic(pos, self.find_exit_position(), self.model))
+            self.safe_position = safe_positions[0]
+            self.safe_path = breadth_first_search_without_markers(self.pos, self.safe_position, self.model)
+            self.waiting_for_explosion = True
 
     def increase_power(self):
         """Incrementa el poder de destrucción cuando Bomberman encuentra un comodín."""
@@ -159,6 +180,7 @@ class Bomberman(Agent):
                     queue.append((neighbor, 1))
 
     def is_safe_position(self, pos):
+        
         """Determina si una posición está fuera del alcance de la explosión y no contiene obstáculos como rocas."""
         x, y = self.pos
         px, py = pos
@@ -212,10 +234,7 @@ class Bomberman(Agent):
 
     def find_exit_position(self):
         """Busca la posición de la roca que contiene la salida (R_s)."""
-        for agent in self.model.schedule.agents:
-            if isinstance(agent, Rock) and agent.has_exit:
-                return agent.pos
-        return None
+        return self.model.exit_position
 
     def follow_path(self):
         """Sigue el camino calculado hacia la salida o la siguiente posición."""

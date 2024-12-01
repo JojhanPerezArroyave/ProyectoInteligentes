@@ -26,6 +26,7 @@ class BombermanModel(Model):
         self.joker_count = 0  # Contador para controlar los comodines
         self.alpha_beta_depth = alpha_beta_depth 
         self.running = True
+        self.exit_position = None 
         self.export_file = "game_states.txt"
         
         # Crear archivo vacío para exportar estados
@@ -76,6 +77,7 @@ class BombermanModel(Model):
                         rock_positions.append((x, y))  # Agregar la posición a rock_positions
                     elif elem == "R_s":
                         rock = Rock((x, y), self, has_exit=True)
+                        self.exit_position = (x, y)
                         self.grid.place_agent(rock, (x, y))
                         self.schedule.add(rock)
                     elif elem == "M":
