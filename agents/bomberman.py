@@ -8,7 +8,6 @@ from agents.numberMarker import NumberMarker
 from agents.joker import Joker
 from utils.search_algorithms import bomberman_heuristic, breadth_first_search_without_markers, get_neighbors_in_orthogonal_order, is_valid_move
 
-
 class Bomberman(Agent):
     def __init__(self, pos, model):
         super().__init__(pos, model)
@@ -25,11 +24,11 @@ class Bomberman(Agent):
         self.visited_positions = deque(maxlen=5)
 
     def move(self):
+        print("move normal")
         """Controla los movimientos de Bomberman y gestiona la lógica de colocación de bombas y movimiento seguro."""
         # Si está esperando en la posición segura, verifica si la explosión ha terminado
         if self.waiting_for_explosion:
             if self.is_explosion_over():
-            
                 self.waiting_for_explosion = False
                 self.placed_bomb = False
                 self.calculate_return_path()  # Calcula el camino de regreso al camino original
@@ -45,10 +44,8 @@ class Bomberman(Agent):
         # Verifica si Bomberman encuentra una roca con un ítem de poder
         rock = self.model.grid.get_cell_list_contents([self.pos])
         for obj in rock:
-          
             if isinstance(obj, Joker):
                 self.increase_power()  # Incrementa el poder de la bomba
-                
                 x, y = obj.pos
                 number_marker = NumberMarker((x, y), obj.model, obj.value)
                 self.model.grid.remove_agent(obj)  # Eliminar la roca
@@ -71,30 +68,6 @@ class Bomberman(Agent):
             self.exit_found = True
             self.calculate_safe_path()
             return
-        
-        if self.model.algorithm == "AlphaBeta":
-            best_move = self.model.run_search_algorithm(self.pos, exit_position, is_balloon=False)
-            print(f"Bomberman está en {self.pos}. Mejor movimiento calculado: {best_move}")
-
-            # Verificar que el mejor movimiento maximice la distancia al globo y minimice la distancia a la meta
-            if best_move:
-                current_heuristic = bomberman_heuristic(self.pos, exit_position, self.model)
-                next_heuristic = bomberman_heuristic(best_move, exit_position, self.model)
-
-                # Recalcular si el mejor movimiento no mejora la heurística
-                if next_heuristic >= current_heuristic:
-                    print(f"Recalculando movimiento, {best_move} no mejora la heurística.")
-                    neighbors = get_neighbors_in_orthogonal_order(self.pos, self.model)
-                    valid_alternatives = [n for n in neighbors if is_valid_move(n, self.model)]
-                    
-                    if valid_alternatives:
-                        best_move = min(valid_alternatives, key=lambda n: bomberman_heuristic(n, exit_position, self.model))
-                        print(f"Nuevo mejor movimiento seleccionado: {best_move}")
-
-            # Ejecutar el mejor movimiento
-            if best_move:
-                self.model.grid.move_agent(self, best_move)
-            return
 
         # Calcular un nuevo camino si es necesario
         if exit_position and not self.path:
@@ -106,6 +79,63 @@ class Bomberman(Agent):
             self.calculate_safe_path()
         else:
             self.follow_path()  # Moverse si no hay bloque en el camino
+
+    def move_alphabeta(self):
+        """Controla los movimientos de Bomberman usando poda alfa-beta."""
+        if self.waiting_for_explosion:
+            # Si está esperando en la posición segura, verificar si la explosión ha terminado
+            if self.is_explosion_over():
+                self.waiting_for_explosion = False
+                self.placed_bomb = False
+                # Recalcular hacia la salida desde la posición actual
+                exit_position = self.find_exit_position()
+                if exit_position:
+                    best_move = self.model.run_search_algorithm(self.pos, exit_position, is_balloon=False)
+                    print(f"Bomberman recalcula camino tras explosión. Mejor movimiento: {best_move}")
+                    if best_move:
+                        self.model.grid.move_agent(self, best_move)
+            else:
+                # Moverse paso a paso en el camino seguro
+                self.follow_safe_path()
+            return
+
+        # Si está en proceso de moverse hacia la salida
+        exit_position = self.find_exit_position()
+
+        # Si la salida está libre y no hay obstáculos, moverse directamente hacia allí
+        if self.exit_found and exit_position and not self.is_block_present(exit_position):
+            self.model.grid.move_agent(self, exit_position)
+            self.model.finish_game()
+            return
+
+        # Colocar bomba si está adyacente a la roca con la salida
+        if exit_position and self.is_adjacent(exit_position) and not self.exit_found:
+            self.place_bomb()
+            self.exit_found = True
+            self.calculate_safe_path()
+            return
+
+        # Usar poda alfa-beta para buscar el mejor movimiento
+        best_move = self.model.run_search_algorithm(self.pos, exit_position, is_balloon=False)
+        print(f"Bomberman está en {self.pos}. Mejor movimiento calculado: {best_move}")
+
+        # Verificar que el movimiento mejora la heurística
+        if best_move:
+            current_heuristic = bomberman_heuristic(self.pos, exit_position, self.model)
+            next_heuristic = bomberman_heuristic(best_move, exit_position, self.model)
+
+            if next_heuristic >= current_heuristic:
+                print(f"Recalculando movimiento, {best_move} no mejora la heurística.")
+                neighbors = get_neighbors_in_orthogonal_order(self.pos, self.model)
+                valid_alternatives = [n for n in neighbors if is_valid_move(n, self.model)]
+                if valid_alternatives:
+                    best_move = min(valid_alternatives, key=lambda n: bomberman_heuristic(n, exit_position, self.model))
+                    print(f"Nuevo mejor movimiento seleccionado: {best_move}")
+
+        # Ejecutar el mejor movimiento
+        if best_move:
+            self.model.grid.move_agent(self, best_move)
+
 
     def increase_power(self):
         """Incrementa el poder de destrucción cuando Bomberman encuentra un comodín."""
@@ -225,9 +255,10 @@ class Bomberman(Agent):
             if next_position == self.exit_position:  
                 self.model.finish_game()
 
-
-
     def step(self):
         self.model.update_previous_position(self, self.pos)
-        self.move()
+        if self.model.algorithm == "AlphaBeta":
+            self.move_alphabeta()
+        else:
+            self.move()
         
