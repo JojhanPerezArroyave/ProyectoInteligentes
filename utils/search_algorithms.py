@@ -400,39 +400,28 @@ def balloon_heuristic(pos, bomberman_pos, model):
 
 
 # Implementación del algoritmo alfa-beta
-def alpha_beta_search(start, goal, model, depth, is_maximizing, alpha=float('-inf'), beta=float('inf'), record_state=None):
+def alpha_beta_search(start, goal, model, depth, is_maximizing, heuristic, alpha=float('-inf'), beta=float('inf'), record_state=None):
     """
-    Algoritmo alfa-beta para Bomberman y los globos.
-
-    Args:
-        start (tuple): Posición inicial.
-        goal (tuple): Posición objetivo.
-        model (BombermanModel): El modelo de Mesa.
-        depth (int): Profundidad máxima de búsqueda.
-        is_maximizing (bool): Si el nodo actual es de maximización.
-        alpha (float): Valor alfa.
-        beta (float): Valor beta.
-        record_state (function): Función para registrar el estado.
-
-    Returns:
-        tuple: Mejor posición y valor asociado.
+    Algoritmo alfa-beta para Bomberman y los globos, con heurística configurable.
     """
     # Caso base: profundidad 0 o se alcanza el objetivo
     if depth == 0 or start == goal:
-        heuristic_value = bomberman_heuristic(start, goal, model) if is_maximizing else balloon_heuristic(start, goal, model)
+        heuristic_value = heuristic(start, goal, model)
         if record_state:
             record_state(start, heuristic_value)
         return start, heuristic_value
 
-    # Obtener vecinos en orden ortogonal
+    # Obtener vecinos y ordenarlos dinámicamente según la heurística
     neighbors = get_neighbors_in_orthogonal_order(start, model)
+    neighbors = sorted(neighbors, key=lambda n: heuristic(n, goal, model))
+
     best_move = None
 
     if is_maximizing:
         max_eval = float('-inf')
         for neighbor in neighbors:
             if is_valid_move(neighbor, model):
-                _, eval = alpha_beta_search(neighbor, goal, model, depth - 1, False, alpha, beta, record_state)
+                _, eval = alpha_beta_search(neighbor, goal, model, depth - 1, False, heuristic, alpha, beta, record_state)
                 if eval > max_eval:
                     max_eval = eval
                     best_move = neighbor
@@ -444,7 +433,7 @@ def alpha_beta_search(start, goal, model, depth, is_maximizing, alpha=float('-in
         min_eval = float('inf')
         for neighbor in neighbors:
             if is_valid_move(neighbor, model):
-                _, eval = alpha_beta_search(neighbor, goal, model, depth - 1, True, alpha, beta, record_state)
+                _, eval = alpha_beta_search(neighbor, goal, model, depth - 1, True, heuristic, alpha, beta, record_state)
                 if eval < min_eval:
                     min_eval = eval
                     best_move = neighbor
@@ -452,3 +441,4 @@ def alpha_beta_search(start, goal, model, depth, is_maximizing, alpha=float('-in
                 if beta <= alpha:  # Corte beta
                     break
         return best_move, min_eval
+

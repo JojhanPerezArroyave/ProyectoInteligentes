@@ -130,8 +130,10 @@ class BombermanModel(Model):
         if self.algorithm == "AlphaBeta":
             heuristic_func = balloon_heuristic if is_balloon else bomberman_heuristic
             return alpha_beta_search(
-                start, goal, self, depth=self.alpha_beta_depth, 
-                is_maximizing=not is_balloon, record_state=self.record_state
+                start, goal, self, depth=self.alpha_beta_depth,
+                is_maximizing=not is_balloon,
+                heuristic=heuristic_func,  # Pasar la heurística seleccionada
+                record_state=self.record_state
             )[0]  # Solo devolver la posición óptima
 
         heuristic_func = manhattan_distance if self.heuristic == "Manhattan" else euclidean_distance
