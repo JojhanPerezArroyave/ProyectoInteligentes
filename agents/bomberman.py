@@ -6,7 +6,7 @@ from agents.rock import Rock
 from agents.metal import Metal
 from agents.numberMarker import NumberMarker
 from agents.joker import Joker
-from utils.search_algorithms import breadth_first_search_without_markers, get_neighbors_in_orthogonal_order
+from utils.search_algorithms import bomberman_heuristic, breadth_first_search_without_markers, get_neighbors_in_orthogonal_order, is_valid_move
 
 
 class Bomberman(Agent):
@@ -22,6 +22,7 @@ class Bomberman(Agent):
         self.waiting_for_explosion = False  # Indica si Bomberman está esperando que la bomba y el fuego desaparezcan
         self.safe_position = None  # Posición segura donde Bomberman esperará
         self.exit_position =  self.find_exit_position()  # Posición de la roca con la salida
+        self.visited_positions = deque(maxlen=5)
 
     def move(self):
         """Controla los movimientos de Bomberman y gestiona la lógica de colocación de bombas y movimiento seguro."""
@@ -73,9 +74,25 @@ class Bomberman(Agent):
         
         if self.model.algorithm == "AlphaBeta":
             best_move = self.model.run_search_algorithm(self.pos, exit_position, is_balloon=False)
-            if best_move:
+            print(f"Bomberman está en {self.pos}. Mejor movimiento calculado: {best_move}")
+
+            # Reconsiderar otros vecinos si el mejor movimiento es parte del ciclo
+            if best_move in self.visited_positions:
+                print(f"Evitando ciclo: {best_move} ya visitado recientemente. Recalculando...")
+                neighbors = get_neighbors_in_orthogonal_order(self.pos, self.model)
+                valid_alternatives = [n for n in neighbors if n not in self.visited_positions and is_valid_move(n, self.model)]
+                
+                # Elegir la mejor alternativa válida
+                if valid_alternatives:
+                    best_move = min(valid_alternatives, key=lambda n: bomberman_heuristic(n, exit_position, self.model))
+                    print(f"Nueva mejor opción después de evitar ciclo: {best_move}")
+
+            # Si hay un movimiento válido, ejecutarlo
+            if best_move and best_move not in self.visited_positions:
+                self.visited_positions.append(best_move)
                 self.model.grid.move_agent(self, best_move)
             return
+
 
         # Calcular un nuevo camino si es necesario
         if exit_position and not self.path:
