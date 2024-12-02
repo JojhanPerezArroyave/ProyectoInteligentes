@@ -104,9 +104,35 @@ class Bomberman(Agent):
 
         # Si la salida está libre y no hay obstáculos, moverse directamente hacia allí
         if self.exit_found and exit_position and not self.is_block_present(exit_position):
-            self.model.grid.move_agent(self, exit_position)
-            self.model.finish_game()
+            print(f"Bomberman encontró la salida accesible. Recalculando con poda alfa-beta desde {self.pos} hacia {exit_position}.")
+            
+            # Volver a aplicar la lógica de poda alfa-beta
+            best_move = self.model.run_search_algorithm(self.pos, exit_position, is_balloon=False)
+            print(f"Bomberman está en {self.pos}. Salida en {exit_position}. Mejor movimiento calculado: {best_move}")
+
+            # Verificar que el movimiento mejora la heurística
+            if best_move:
+                current_heuristic = bomberman_heuristic(self.pos, exit_position, self.model)
+                next_heuristic = bomberman_heuristic(best_move, exit_position, self.model)
+
+                if next_heuristic >= current_heuristic:
+                    print(f"Recalculando movimiento, {best_move} no mejora la heurística desde la posición actual {self.pos}.")
+                    neighbors = get_neighbors_in_orthogonal_order(self.pos, self.model)
+                    valid_alternatives = [n for n in neighbors if is_valid_move(n, self.model)]
+                    if valid_alternatives:
+                        best_move = min(valid_alternatives, key=lambda n: bomberman_heuristic(n, exit_position, self.model))
+                        print(f"Nuevo mejor movimiento seleccionado: {best_move}")
+
+            # Ejecutar el mejor movimiento
+            if best_move:
+                print(f"Bomberman se mueve de {self.pos} a {best_move} utilizando poda alfa-beta hacia la salida.")
+                self.model.grid.move_agent(self, best_move)
+
+            # Terminar el juego solo si Bomberman alcanza la salida
+            if self.pos == exit_position:
+                self.model.finish_game()
             return
+
 
         # Colocar bomba si está adyacente a la roca con la salida
         if exit_position and self.is_adjacent(exit_position) and not self.exit_found:
