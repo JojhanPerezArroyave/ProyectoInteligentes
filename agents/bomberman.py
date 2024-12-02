@@ -138,7 +138,7 @@ class Bomberman(Agent):
         if exit_position and self.is_adjacent(exit_position) and not self.exit_found:
             self.place_bomb()
             self.exit_found = True
-            self.calculate_safe_path()
+            self.calculate_safe_path_alphabeta()
             return
 
         # Usar poda alfa-beta para buscar el mejor movimiento
@@ -161,6 +161,66 @@ class Bomberman(Agent):
         # Ejecutar el mejor movimiento
         if best_move:
             self.model.grid.move_agent(self, best_move)
+
+    def calculate_safe_path_alphabeta(self):
+        """Calcula una zona segura teniendo en cuenta globos y explosiones."""
+        from collections import deque
+
+        queue = deque([(self.pos, 0)])  # (posición actual, distancia)
+        visited = set([self.pos])  # Para evitar revisitar posiciones
+        potential_safe_positions = []  # Posiciones consideradas seguras
+
+        while queue:
+            current_pos, distance = queue.popleft()
+
+            # Verificar si la posición es segura
+            if self.is_safe_position_alphabeta(current_pos):
+                potential_safe_positions.append((current_pos, distance))
+
+            # Expandir vecinos ortogonales
+            for neighbor in get_neighbors_in_orthogonal_order(current_pos, self.model):
+                if neighbor not in visited and self.is_valid_move_for_escape(neighbor):
+                    visited.add(neighbor)
+                    queue.append((neighbor, distance + 1))
+
+        # Evaluar posiciones seguras con heurística (máxima distancia a globos, mínima a salida)
+        if potential_safe_positions:
+            safe_position = min(
+                potential_safe_positions,
+                key=lambda pos: (
+                    bomberman_heuristic(pos[0], self.find_exit_position(), self.model),
+                    -self.distance_to_closest_balloon(pos[0])
+                )
+            )[0]
+            self.safe_position = safe_position
+            self.safe_path = breadth_first_search_without_markers(self.pos, safe_position, self.model)
+            self.waiting_for_explosion = True
+
+    def is_safe_position_alphabeta(self, pos):
+        from agents.balloon import Balloon
+        """Determina si una posición es segura considerando globos y explosiones."""
+        # Verificar si está fuera del rango de explosión
+        if not self.is_safe_position(pos):
+            return False
+
+        # Verificar si está lejos de los globos
+        for agent in self.model.schedule.agents:
+            if isinstance(agent, Balloon):
+                balloon_distance = abs(pos[0] - agent.pos[0]) + abs(pos[1] - agent.pos[1])
+                if balloon_distance <= 1:  # Posición insegura si está a 1 movimiento del globo
+                    return False
+        return True
+
+    def distance_to_closest_balloon(self, pos):
+        from agents.balloon import Balloon
+        """Calcula la distancia al globo más cercano desde una posición."""
+        min_distance = float('inf')
+        for agent in self.model.schedule.agents:
+            if isinstance(agent, Balloon):
+                balloon_distance = abs(pos[0] - agent.pos[0]) + abs(pos[1] - agent.pos[1])
+                min_distance = min(min_distance, balloon_distance)
+        return min_distance
+
 
 
     def increase_power(self):
