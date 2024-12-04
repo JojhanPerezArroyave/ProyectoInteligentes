@@ -58,7 +58,8 @@ algorithm_choice = Choice("Algoritmo de búsqueda", value="BFS", choices=["BFS",
 heuristic_choice = Choice("Heurística", value="Manhattan", choices=["Manhattan", "Euclidiana"])
 #cambiar el rango por 0
 jokers_choice = Choice("Número de comodines", value=3, choices=list(range(1, 11)))
+level_choice = Choice("Nivel", value=1, choices=list(range(1, 4)))
 server = ModularServer(BombermanModel, [grid], "Bomberman Model", {"map_file": map_file, "algorithm": algorithm_choice, 
-                                                                   "heuristic": heuristic_choice, "jokers": jokers_choice})
+                                                                   "heuristic": heuristic_choice, "jokers": jokers_choice, "alpha_beta_depth": level_choice})
 server.port = 8521
 server.launch()
