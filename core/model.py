@@ -12,7 +12,7 @@ from utils.search_algorithms import (breadth_first_search, depth_first_search, u
                                       balloon_heuristic)
 import random
 class BombermanModel(Model):
-    def __init__(self,  map_file, algorithm, heuristic, jokers=3, alpha_beta_depth=3):
+    def __init__(self,  map_file, algorithm, heuristic, jokers=3, alpha_beta_depth=1):
         super().__init__()
         self.map_file = map_file
         self.grid_width, self.grid_height = self.get_map_dimensions(map_file)

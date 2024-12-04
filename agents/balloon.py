@@ -13,7 +13,7 @@ class Balloon(Agent):
             return  
 
         # Si el algoritmo seleccionado es Alfa-Beta, calcula el mejor movimiento
-        if self.model.algorithm == "AlphaBeta":
+        if self.model.algorithm == "AlphaBeta" and self.model.alpha_beta_depth > 1:
             bomberman = next(agent for agent in self.model.schedule.agents if isinstance(agent, Bomberman))
             best_move = self.model.run_search_algorithm(self.pos, bomberman.pos, is_balloon=True)
             
