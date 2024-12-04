@@ -337,6 +337,14 @@ def is_valid_move(pos, model):
     
     return True  
 
+def is_valid_move_for_balloons(pos, model):
+    cell_contents = model.grid.get_cell_list_contents(pos)
+    for obj in cell_contents:
+        if isinstance(obj, Metal) or isinstance(obj, Rock):
+            return False 
+    
+    return True  
+
 from collections import deque
 
 def breadth_first_search_without_markers(start, goal, model):
@@ -434,7 +442,7 @@ def alpha_beta_search(start, goal, model, depth, is_maximizing, heuristic, alpha
     else:
         min_eval = float('inf')
         for neighbor in neighbors:
-            if is_valid_move(neighbor, model):
+            if is_valid_move_for_balloons(neighbor, model):
                 _, eval = alpha_beta_search(neighbor, goal, model, depth - 1, True, heuristic, alpha, beta, record_state)
                 if eval < min_eval:
                     min_eval = eval
