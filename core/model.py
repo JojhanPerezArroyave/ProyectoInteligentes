@@ -27,6 +27,8 @@ class BombermanModel(Model):
         self.alpha_beta_depth = alpha_beta_depth 
         self.running = True
         self.exit_position = None 
+        self.prunned_nodes = 0
+        self.level = 0
         self.export_file = "game_states.txt"
         
         # Crear archivo vacío para exportar estados
@@ -182,4 +184,5 @@ class BombermanModel(Model):
     def finish_game(self):
         """Detiene el juego al finalizar."""
         print("¡Juego detenido! Bomberman ha alcanzado la salida.")
+        print("Cantidad de nodos cortados: ", self.prunned_nodes)
         self.running = False 

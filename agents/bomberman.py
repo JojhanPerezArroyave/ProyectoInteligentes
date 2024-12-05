@@ -345,6 +345,9 @@ class Bomberman(Agent):
         self.model.update_previous_position(self, self.pos)
         if self.model.algorithm == "AlphaBeta":
             self.move_alphabeta()
+            self.model.level += 1
+            if self.model.level == 5:
+                print("cantidad de nodos podados hasta nivel 5: ", self.model.prunned_nodes)
         else:
             self.move()
         

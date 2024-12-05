@@ -437,6 +437,7 @@ def alpha_beta_search(start, goal, model, depth, is_maximizing, heuristic, alpha
                     best_move = neighbor
                 alpha = max(alpha, eval)
                 if beta <= alpha:  # Corte alfa
+                    model.prunned_nodes += 1 
                     break
         return best_move, max_eval
     else:

@@ -1,0 +1,9 @@
+Cambios realizados para la sustentación:
+
+En el archivo search_algorithms.py en la línea 440 agregamos model.prunned_nodes += 1  que aumenta la cantidad de cortes
+En el archivo model se agregan las variables self.prunned_nodes = 0 y self.level = 0 que indican el nivel en que se encuentra y la cantidad de nodos que se han ido cortando
+En el archivo bomberman se pone esta lógica:
+    self.model.level += 1
+            if self.model.level == 5:
+                print("cantidad de nodos podados hasta nivel 5: ", self.model.prunned_nodes)
+Lo que hace es comprobar el nivel, cada paso avanza un nivel si el nivel es 5 imprimimos la cantidad de nodos que se han cortado hasta el momento.
