@@ -81,7 +81,7 @@ class Bomberman(Agent):
             self.follow_path()  # Moverse si no hay bloque en el camino
 
     def move_alphabeta(self):
-        """Controla los movimientos de Bomberman usando poda alfa-beta."""
+        """Controla los movimientos de Bomberman usando poda alfa-beta y evita ciclos."""
         if self.waiting_for_explosion:
             # Si está esperando en la posición segura, verificar si la explosión ha terminado
             if self.is_explosion_over():
@@ -105,7 +105,7 @@ class Bomberman(Agent):
         # Si la salida está libre y no hay obstáculos, moverse directamente hacia allí
         if self.exit_found and exit_position and not self.is_block_present(exit_position):
             print(f"Bomberman encontró la salida accesible. Recalculando con poda alfa-beta desde {self.pos} hacia {exit_position}.")
-            
+
             # Volver a aplicar la lógica de poda alfa-beta
             best_move = self.model.run_search_algorithm(self.pos, exit_position, is_balloon=False)
             print(f"Bomberman está en {self.pos}. Salida en {exit_position}. Mejor movimiento calculado: {best_move}")
@@ -125,7 +125,6 @@ class Bomberman(Agent):
 
             # Ejecutar el mejor movimiento
             if best_move:
-                print(f"Bomberman se mueve de {self.pos} a {best_move} utilizando poda alfa-beta hacia la salida.")
                 self.model.grid.move_agent(self, best_move)
 
             # Terminar el juego solo si Bomberman alcanza la salida
@@ -133,12 +132,22 @@ class Bomberman(Agent):
                 self.model.finish_game()
             return
 
-
         # Colocar bomba si está adyacente a la roca con la salida
         if exit_position and self.is_adjacent(exit_position) and not self.exit_found:
             self.place_bomb()
             self.exit_found = True
             self.calculate_safe_path_alphabeta()
+            return
+
+        # Verificar si Bomberman está en un ciclo: si la posición actual ya fue visitada recientemente
+        if self.pos in self.visited_positions:
+            print(f"Bomberman está en una posición cíclica, buscando nuevas opciones.")
+            # Si está en un ciclo, elegir una nueva posición al azar para explorar
+            neighbors = get_neighbors_in_orthogonal_order(self.pos, self.model)
+            valid_neighbors = [n for n in neighbors if is_valid_move(n, self.model) and n not in self.visited_positions]
+            if valid_neighbors:
+                best_move = min(valid_neighbors, key=lambda n: bomberman_heuristic(n, exit_position, self.model))
+                self.model.grid.move_agent(self, best_move)
             return
 
         # Usar poda alfa-beta para buscar el mejor movimiento
@@ -161,6 +170,10 @@ class Bomberman(Agent):
         # Ejecutar el mejor movimiento
         if best_move:
             self.model.grid.move_agent(self, best_move)
+
+        # Almacenar la posición actual para evitar ciclos futuros
+        self.visited_positions.append(self.pos)
+
 
     def calculate_safe_path_alphabeta(self):
         """Calcula una zona segura teniendo en cuenta globos y explosiones."""

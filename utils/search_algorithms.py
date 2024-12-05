@@ -332,7 +332,7 @@ def get_neighbors_in_orthogonal_order(pos, model):
 def is_valid_move(pos, model):
     cell_contents = model.grid.get_cell_list_contents(pos)
     for obj in cell_contents:
-        if isinstance(obj, Metal):
+        if isinstance(obj, Metal) or isinstance(obj, Rock):
             return False 
     
     return True  
