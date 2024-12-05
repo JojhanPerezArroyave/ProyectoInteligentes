@@ -410,7 +410,7 @@ def balloon_heuristic(pos, bomberman_pos, model):
 
 
 # Implementación del algoritmo alfa-beta
-def alpha_beta_search(start, goal, model, depth, is_maximizing, heuristic, alpha=float('-inf'), beta=float('inf'), record_state=None):
+def alpha_beta_search(start, goal, model, depth, is_maximizing, heuristic, alpha=float('-inf'), beta=float('inf'), record_state=None, centinela = 0):
     """
     Algoritmo alfa-beta para Bomberman y los globos, con heurística configurable.
     """
@@ -419,7 +419,7 @@ def alpha_beta_search(start, goal, model, depth, is_maximizing, heuristic, alpha
         heuristic_value = heuristic(start, goal, model)
         if record_state:
             record_state(start, heuristic_value)
-        return start, heuristic_value
+        return start, heuristic_value, centinela
 
     # Obtener vecinos y ordenarlos dinámicamente según la heurística
     neighbors = get_neighbors_in_orthogonal_order(start, model)
@@ -431,24 +431,28 @@ def alpha_beta_search(start, goal, model, depth, is_maximizing, heuristic, alpha
         max_eval = float('-inf')
         for neighbor in neighbors:
             if is_valid_move(neighbor, model):
-                _, eval = alpha_beta_search(neighbor, goal, model, depth - 1, False, heuristic, alpha, beta, record_state)
+                _, eval, centinela = alpha_beta_search(neighbor, goal, model, depth - 1, False, heuristic, alpha, beta, record_state)
                 if eval > max_eval:
                     max_eval = eval
                     best_move = neighbor
                 alpha = max(alpha, eval)
                 if beta <= alpha:  # Corte alfa
+                    print("Poda alpha_beta")
                     break
-        return best_move, max_eval
+        return best_move, max_eval, centinela
     else:
         min_eval = float('inf')
         for neighbor in neighbors:
             if is_valid_move_for_balloons(neighbor, model):
-                _, eval = alpha_beta_search(neighbor, goal, model, depth - 1, True, heuristic, alpha, beta, record_state)
+                _, eval, centinela = alpha_beta_search(neighbor, goal, model, depth - 1, True, heuristic, alpha, beta, record_state, centinela)
                 if eval < min_eval:
                     min_eval = eval
                     best_move = neighbor
                 beta = min(beta, eval)
                 if beta <= alpha:  # Corte beta
+                    print("Poda alpha_beta")
+                    centinela += 1
+                    print("cantidad de poda Bomberman" + str(centinela))
                     break
-        return best_move, min_eval
+        return best_move, min_eval, centinela
 

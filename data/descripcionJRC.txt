@@ -1,0 +1,15 @@
+1. Se definió una variable sobre el modelo BombermanModel llamada "podas" la cual guardará la cantidad 
+    de podas de forma global cada vez que se ejecute el algoritmo de busqueda alpha beta para el bomberman. Archivo model.py
+2. Dentro del método run_search_algorithm se especificó para guardar el valor de las podas al ejecutar 
+    el algoritmo de busqueda alpha beta. Archivo model.py
+3. Se agrega la línea "self.podas += return_alpha_beta_search[2]" para sumar la cantidad de podas de forma global, 
+    y la línea "print("Podas " + str(self.podas))" después de ejecutar el algotirmo de poda 
+    para saber cuantas podas ejecutó en este paso para el bomberman en todo el recorrido. archivo model.py
+
+4. Se agregó el contador (centinela) dentro de los parámetros del algoritmo alpha_beta_search para contar 
+    las veces que se poda unicamente para el Bomberman, y así cada que se mínimiza (donde es turno del bomberman 
+    y se poda) se aumenta el contador. Archivo search_algorithms.py
+
+5. El contador se retorna.
+
+6. La cantidad de podas para el nivel 5 del bomberman fue de 53

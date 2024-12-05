@@ -28,6 +28,7 @@ class BombermanModel(Model):
         self.running = True
         self.exit_position = None 
         self.export_file = "game_states.txt"
+        self.podas = 0
         
         # Crear archivo vacío para exportar estados
         with open(self.export_file, "w") as f:
@@ -130,12 +131,16 @@ class BombermanModel(Model):
     def run_search_algorithm(self, start, goal, is_balloon=False):
         if self.algorithm == "AlphaBeta":
             heuristic_func = balloon_heuristic if is_balloon else bomberman_heuristic
-            return alpha_beta_search(
+            return_alpha_beta_search = alpha_beta_search(
                 start, goal, self, depth=self.alpha_beta_depth,
                 is_maximizing=not is_balloon,
                 heuristic=heuristic_func,  # Pasar la heurística seleccionada
                 record_state=self.record_state
-            )[0]  # Solo devolver la posición óptima
+            )  
+            self.podas += return_alpha_beta_search[2]
+            print("Podas " + str(self.podas))
+            return return_alpha_beta_search[0]
+            # Solo devolver la posición óptima
 
         heuristic_func = manhattan_distance if self.heuristic == "Manhattan" else euclidean_distance
 
